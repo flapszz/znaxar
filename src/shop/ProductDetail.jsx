@@ -56,7 +56,7 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack }) {
           <div className="mt-5 flex items-center gap-4 flex-wrap">
             <span style={{ ...HEAD, fontSize: 32, whiteSpace: "nowrap" }}>{money(p.price)}</span>
             <Btn variant="acid" onClick={onAdd} disabled={!p.stock}>
-              {!p.stock ? "Закончился" : "В заявку"}
+              {!p.stock ? "Закончился" : "В корзину"}
             </Btn>
           </div>
 

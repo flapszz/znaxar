@@ -7,7 +7,7 @@ import { Plaque } from "../components/Plaque";
 import { TrustBadges } from "../components/TrustBadges";
 import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, SHADOW_FRAME } from "../constants/theme";
 import { SELLER } from "../data/seller";
-import { money } from "../utils/format";
+import { STOCK_LABEL, money, stockState } from "../utils/format";
 import { Checkout } from "./Checkout";
 import { ProductDetail } from "./ProductDetail";
 
@@ -374,39 +374,71 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 </div>
               ) : (
                 <div className="mt-5 grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
-                  {visible.map((p) => (
-                    <article
-                      key={p.sku}
-                      className="card-elevated p-4 flex flex-col"
-                      style={{ borderRadius: RADIUS.card, background: C.card, border: `1.5px solid ${INK[12]}` }}
-                    >
-                      <button onClick={() => openProduct(p.sku)} className="text-left">
-                        <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} badge={p.badge} />
-                        <h3 className="mt-3" style={{ ...HEAD, fontSize: 16, color: C.ink }}>
-                          {p.title}
-                        </h3>
-                      </button>
-                      <p className="mt-1 flex-1" style={{ fontSize: 12.5, color: INK[60] }}>
-                        {p.stockName}
-                      </p>
-                      <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
-                        <span style={{ ...HEAD, fontSize: 26, whiteSpace: "nowrap" }}>{money(p.price)}</span>
-                        {p.stock === 0 ? (
-                          <Badge variant="danger">нет в наличии</Badge>
-                        ) : (
-                          <Badge variant="neutral">{p.stock} шт</Badge>
-                        )}
-                      </div>
-                      <div className="mt-2">
-                        <TrustBadges hasSgr={Boolean(p.sgr)} compact />
-                      </div>
-                      <div className="mt-3">
-                        <Btn variant="acid" full disabled={p.stock === 0} onClick={() => addToCart(p.sku)}>
-                          {p.stock === 0 ? "Закончился" : "В заявку"}
-                        </Btn>
-                      </div>
-                    </article>
-                  ))}
+                  {visible.map((p) => {
+                    const state = stockState(p.stock);
+                    const inCart = cart.find((i) => i.sku === p.sku);
+                    return (
+                      <article
+                        key={p.sku}
+                        className="card-elevated p-4 flex flex-col"
+                        style={{ borderRadius: RADIUS.card, background: C.card, border: `1.5px solid ${INK[12]}` }}
+                      >
+                        <button onClick={() => openProduct(p.sku)} className="text-left">
+                          <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} badge={p.badge} />
+                          <h3 className="mt-3" style={{ ...HEAD, fontSize: 16, color: C.ink }}>
+                            {p.title}
+                          </h3>
+                        </button>
+                        <p className="mt-1 flex-1" style={{ fontSize: 12.5, color: INK[60] }}>
+                          {p.stockName}
+                        </p>
+                        <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
+                          <span style={{ ...HEAD, fontSize: 26, whiteSpace: "nowrap" }}>{money(p.price)}</span>
+                          <Badge variant={state === "out" ? "danger" : state === "low" ? "acid" : "neutral"}>
+                            {STOCK_LABEL[state]}
+                          </Badge>
+                        </div>
+                        <div className="mt-2">
+                          <TrustBadges hasSgr={Boolean(p.sgr)} compact />
+                        </div>
+                        <div className="mt-3">
+                          {inCart ? (
+                            <div
+                              className="flex items-center justify-between"
+                              style={{ borderRadius: RADIUS.pill, background: C.ink, padding: "9px 8px 9px 16px" }}
+                            >
+                              <span style={{ color: C.surface, fontSize: 13, fontWeight: 600 }}>
+                                {inCart.qty} шт в корзине
+                              </span>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => setQty(p.sku, inCart.qty - 1)}
+                                  className="flex items-center justify-center"
+                                  style={{ width: 28, height: 28, borderRadius: 999, background: "rgba(255,255,255,.15)", color: C.surface }}
+                                  aria-label="Уменьшить количество"
+                                >
+                                  −
+                                </button>
+                                <button
+                                  onClick={() => setQty(p.sku, Math.min(inCart.qty + 1, p.stock))}
+                                  disabled={inCart.qty >= p.stock}
+                                  className="flex items-center justify-center"
+                                  style={{ width: 28, height: 28, borderRadius: 999, background: C.acid, color: C.ink, opacity: inCart.qty >= p.stock ? 0.4 : 1 }}
+                                  aria-label="Увеличить количество"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <Btn variant="acid" full disabled={p.stock === 0} onClick={() => addToCart(p.sku)}>
+                              {p.stock === 0 ? "Закончился" : "В корзину"}
+                            </Btn>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               )}
 
