@@ -7,7 +7,7 @@ services:
     type: web
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build && npm run db:migrate && node server/seed-admin.js && node server/seed-products.js
+    buildCommand: npm install --include=dev && npm run build && npm run db:migrate && node server/seed-admin.js && node server/seed-products.js
     startCommand: npm run start
     envVars:
       - key: NODE_ENV
