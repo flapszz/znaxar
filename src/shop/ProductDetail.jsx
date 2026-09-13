@@ -1,3 +1,4 @@
+import { Heart } from "lucide-react";
 import { Badge } from "../components/Badge";
 import { Btn } from "../components/Btn";
 import { ProductPhoto } from "../components/ProductPhoto";
@@ -6,7 +7,7 @@ import { TrustBadges } from "../components/TrustBadges";
 import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, tintForSku } from "../constants/theme";
 import { money } from "../utils/format";
 
-export function ProductDetail({ p, related = [], onAdd, onOpen, onBack }) {
+export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavorite, onToggleFavorite }) {
   return (
     <div>
       {onBack && (
@@ -44,7 +45,19 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack }) {
         </div>
 
         <div style={{ flex: "1 1 360px", minWidth: 0 }}>
-          <Badge variant="neutral">{p.category || "без категории"}</Badge>
+          <div className="flex items-start justify-between gap-3">
+            <Badge variant="neutral">{p.category || "без категории"}</Badge>
+            {onToggleFavorite && (
+              <button
+                onClick={onToggleFavorite}
+                className="flex items-center justify-center shrink-0"
+                style={{ width: 36, height: 36, borderRadius: 999, border: `1.5px solid ${INK[18]}` }}
+                aria-label={isFavorite ? "Убрать из избранного" : "В избранное"}
+              >
+                <Heart size={17} color={isFavorite ? C.danger : C.ink} fill={isFavorite ? C.danger : "none"} />
+              </button>
+            )}
+          </div>
           <h1 className="mt-3" style={{ ...HEAD, fontSize: "clamp(24px,4vw,32px)", color: C.ink }}>
             {p.title}
           </h1>

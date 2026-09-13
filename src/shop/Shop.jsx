@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Activity, Clock, Search, Truck, Wallet } from "lucide-react";
+import { Activity, Clock, Heart, Search, Truck, Wallet } from "lucide-react";
 import { Badge } from "../components/Badge";
 import { Btn } from "../components/Btn";
 import { ProductPhoto } from "../components/ProductPhoto";
@@ -8,6 +8,7 @@ import { TrustBadges } from "../components/TrustBadges";
 import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, SHADOW_FRAME } from "../constants/theme";
 import { SELLER } from "../data/seller";
 import { STOCK_LABEL, money, stockState } from "../utils/format";
+import { useFavorites } from "../utils/useFavorites";
 import { Checkout } from "./Checkout";
 import { ProductDetail } from "./ProductDetail";
 
@@ -19,6 +20,8 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("популярные");
   const [inStockOnly, setInStockOnly] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const { favorites, toggleFavorite } = useFavorites();
   const [screen, setScreen] = useState("catalog"); // catalog | product | checkout | done
   const [openSku, setOpenSku] = useState(null);
   const [doneId, setDoneId] = useState(null);
@@ -53,6 +56,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
   const q = query.trim().toLowerCase();
   const visible = base
     .filter((p) => brand === "Все" || p.brand === brand)
+    .filter((p) => !showFavorites || favorites.includes(p.sku))
     .filter((p) => (p.title + p.description).toLowerCase().includes(q))
     .filter((p) => !inStockOnly || p.stock > 0)
     .sort((a, b) => (sort === "дешевле" ? a.price - b.price : sort === "дороже" ? b.price - a.price : 0));
@@ -170,6 +174,21 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               />
             </label>
 
+            <button
+              onClick={() => setShowFavorites((v) => !v)}
+              className="flex items-center gap-2 px-3.5 py-2 text-left transition-colors"
+              style={{
+                borderRadius: RADIUS.pill,
+                background: showFavorites ? C.acid : "rgba(255,255,255,.08)",
+                color: showFavorites ? C.ink : "rgba(251,248,243,.85)",
+                fontSize: 13,
+                fontWeight: showFavorites ? 600 : 400,
+              }}
+            >
+              <Heart size={15} fill={showFavorites ? C.ink : "none"} />
+              Избранное {favorites.length > 0 ? `(${favorites.length})` : ""}
+            </button>
+
             <div>
               <div style={{ ...OVERLINE, color: "rgba(251,248,243,.45)" }}>Категории</div>
               <div className="mt-2 flex flex-col gap-1">
@@ -270,6 +289,8 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 backToCatalog();
               }}
               onBack={backToCatalog}
+              isFavorite={favorites.includes(openSku)}
+              onToggleFavorite={() => toggleFavorite(openSku)}
             />
           )}
 
@@ -414,12 +435,26 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                         className="card-elevated p-4 flex flex-col"
                         style={{ borderRadius: RADIUS.card, background: C.card, border: `1.5px solid ${INK[12]}` }}
                       >
-                        <button onClick={() => openProduct(p.sku)} className="text-left">
-                          <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} badge={p.badge} />
-                          <h3 className="mt-3" style={{ ...HEAD, fontSize: 16, color: C.ink }}>
-                            {p.title}
-                          </h3>
-                        </button>
+                        <div className="relative">
+                          <button onClick={() => openProduct(p.sku)} className="text-left w-full">
+                            <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} badge={p.badge} />
+                            <h3 className="mt-3" style={{ ...HEAD, fontSize: 16, color: C.ink }}>
+                              {p.title}
+                            </h3>
+                          </button>
+                          <button
+                            onClick={() => toggleFavorite(p.sku)}
+                            className="absolute top-2 right-2 flex items-center justify-center"
+                            style={{ width: 32, height: 32, borderRadius: 999, background: "rgba(255,255,255,.85)" }}
+                            aria-label={favorites.includes(p.sku) ? "Убрать из избранного" : "В избранное"}
+                          >
+                            <Heart
+                              size={16}
+                              color={favorites.includes(p.sku) ? C.danger : C.ink}
+                              fill={favorites.includes(p.sku) ? C.danger : "none"}
+                            />
+                          </button>
+                        </div>
                         <p className="mt-1 flex-1" style={{ fontSize: 12.5, color: INK[60] }}>
                           {p.stockName}
                         </p>
