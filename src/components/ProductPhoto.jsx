@@ -4,7 +4,7 @@ import { C, PRODUCT_BADGE_STYLE, RADIUS, tintForSku } from "../constants/theme";
 const BADGE_ICON = {
   "Хит продаж": Flame,
   "Новинка": Sparkles,
-  "Скидка": BadgePercent,
+  "Акция": BadgePercent,
 };
 
 function BadgeOverlay({ badge }) {

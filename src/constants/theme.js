@@ -62,5 +62,5 @@ export const STATUS_VARIANT = {
 export const PRODUCT_BADGE_STYLE = {
   "Хит продаж": { bg: C.peach, fg: C.surface },
   "Новинка": { bg: C.violet, fg: C.surface },
-  "Скидка": { bg: C.acid, fg: C.ink },
+  "Акция": { bg: C.acid, fg: C.ink },
 };
