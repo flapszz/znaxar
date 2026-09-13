@@ -62,19 +62,24 @@ const SEED_CONTENT = [
 
 const run = async () => {
   for (const p of SEED_CONTENT) {
+    let categoryId = null;
+    if (p.category) {
+      const { rows } = await pool.query(`SELECT id FROM categories WHERE name = $1`, [p.category]);
+      categoryId = rows[0]?.id ?? null;
+    }
     await pool.query(
-      `INSERT INTO products (sku, title, category, description, usage_text, sgr, composition, published, updated_at)
+      `INSERT INTO products (sku, title, category_id, description, usage_text, sgr, composition, published, updated_at)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8, now())
        ON CONFLICT (sku) DO UPDATE SET
          title = EXCLUDED.title,
-         category = EXCLUDED.category,
+         category_id = EXCLUDED.category_id,
          description = EXCLUDED.description,
          usage_text = EXCLUDED.usage_text,
          sgr = EXCLUDED.sgr,
          composition = EXCLUDED.composition,
          published = EXCLUDED.published,
          updated_at = now()`,
-      [p.sku, p.title, p.category, p.description, p.usage, p.sgr, JSON.stringify(p.composition), p.published]
+      [p.sku, p.title, categoryId, p.description, p.usage, p.sgr, JSON.stringify(p.composition), p.published]
     );
   }
   console.log(`Готово: контент для ${SEED_CONTENT.length} товаров записан в БД.`);
