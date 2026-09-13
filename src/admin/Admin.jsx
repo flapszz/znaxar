@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { C, INK, RADIUS } from "../constants/theme";
+import { AdminBrands } from "./AdminBrands";
 import { AdminCategories } from "./AdminCategories";
 import { AdminCollections } from "./AdminCollections";
 import { AdminOrders } from "./AdminOrders";
@@ -27,6 +28,7 @@ export function Admin({ products, bySku, refreshProducts }) {
         {[
           ["products", `Товары (${products.length})`],
           ["categories", "Категории"],
+          ["brands", "Бренды"],
           ["collections", "Подборки"],
           ["orders", `Заявки (${newCount} новых)`],
         ].map(([k, label]) => (
@@ -50,6 +52,8 @@ export function Admin({ products, bySku, refreshProducts }) {
         <AdminProducts products={products} refreshProducts={refreshProducts} />
       ) : tab === "categories" ? (
         <AdminCategories />
+      ) : tab === "brands" ? (
+        <AdminBrands />
       ) : tab === "collections" ? (
         <AdminCollections products={products} />
       ) : orders === null ? (

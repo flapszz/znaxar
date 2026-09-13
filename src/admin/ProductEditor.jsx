@@ -10,11 +10,16 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
   const isNew = mode === "create";
 
   const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   useEffect(() => {
     fetch("/api/categories")
       .then((r) => (r.ok ? r.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
+    fetch("/api/brands")
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setBrands)
+      .catch(() => setBrands([]));
   }, []);
 
   const [sku, setSku] = useState(p.sku || "");
@@ -25,6 +30,7 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
   const [f, setF] = useState({
     title: p.title,
     category: p.category,
+    brand: p.brand || "",
     description: p.description,
     usage: p.usage,
     sgr: p.sgr,
@@ -201,16 +207,29 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
           <input value={f.title} onChange={upd("title")} className="w-full px-3 py-2 rounded-lg" style={inputStyle} />
         </Field>
 
-        <Field label="Категория">
-          <select value={f.category} onChange={upd("category")} className="w-full px-3 py-2 rounded-lg" style={inputStyle}>
-            <option value="">— выберите —</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.name}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Категория">
+            <select value={f.category} onChange={upd("category")} className="w-full px-3 py-2 rounded-lg" style={inputStyle}>
+              <option value="">— выберите —</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Бренд" hint="Необязательно.">
+            <select value={f.brand} onChange={upd("brand")} className="w-full px-3 py-2 rounded-lg" style={inputStyle}>
+              <option value="">— не указан —</option>
+              {brands.map((b) => (
+                <option key={b.id} value={b.name}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
 
         <Field label="Бейдж на карточке" hint="Необязательно — акцентная плашка поверх фото на витрине.">
           <select value={f.badge} onChange={upd("badge")} className="w-full px-3 py-2 rounded-lg" style={inputStyle}>

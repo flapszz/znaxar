@@ -15,6 +15,7 @@ const SORTS = ["популярные", "дешевле", "дороже"];
 
 export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, cookieBannerVisible }) {
   const [cat, setCat] = useState("Все");
+  const [brand, setBrand] = useState("Все");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("популярные");
   const [inStockOnly, setInStockOnly] = useState(false);
@@ -23,6 +24,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
   const [doneId, setDoneId] = useState(null);
   const [collections, setCollections] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   const gridRef = useRef(null);
 
   useEffect(() => {
@@ -34,6 +36,10 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
       .then((r) => (r.ok ? r.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
+    fetch("/api/brands")
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setBrands)
+      .catch(() => setBrands([]));
   }, []);
 
   const activeCollection = cat.startsWith("col:")
@@ -46,6 +52,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
   const q = query.trim().toLowerCase();
   const visible = base
+    .filter((p) => brand === "Все" || p.brand === brand)
     .filter((p) => (p.title + p.description).toLowerCase().includes(q))
     .filter((p) => !inStockOnly || p.stock > 0)
     .sort((a, b) => (sort === "дешевле" ? a.price - b.price : sort === "дороже" ? b.price - a.price : 0));
@@ -184,6 +191,30 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 ))}
               </div>
             </div>
+
+            {brands.length > 0 && (
+              <div>
+                <div style={{ ...OVERLINE, color: "rgba(251,248,243,.45)" }}>Бренд</div>
+                <div className="mt-2 flex flex-col gap-1">
+                  {["Все", ...brands.map((b) => b.name)].map((b) => (
+                    <button
+                      key={b}
+                      onClick={() => setBrand(b)}
+                      className="flex items-center justify-between px-3 py-1.5 text-left transition-colors"
+                      style={{
+                        borderRadius: RADIUS.pill,
+                        background: brand === b ? C.acid : "transparent",
+                        color: brand === b ? C.ink : "rgba(251,248,243,.85)",
+                        fontSize: 13,
+                        fontWeight: brand === b ? 600 : 400,
+                      }}
+                    >
+                      {b}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {collections.length > 0 && (
               <div>

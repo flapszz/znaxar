@@ -22,10 +22,11 @@ const uploadSpreadsheet = multer({
 async function loadProducts() {
   const { rows: stockRows } = await pool.query(`SELECT sku, stock_name, price, stock FROM stock`);
   const { rows } = await pool.query(
-    `SELECT p.sku, p.title, c.name AS category, p.description, p.usage_text AS usage, p.sgr,
+    `SELECT p.sku, p.title, c.name AS category, b.name AS brand, p.description, p.usage_text AS usage, p.sgr,
             p.composition, p.published, (p.image_data IS NOT NULL) AS has_image, p.updated_at, p.badge
      FROM products p
-     LEFT JOIN categories c ON c.id = p.category_id`
+     LEFT JOIN categories c ON c.id = p.category_id
+     LEFT JOIN brands b ON b.id = p.brand_id`
   );
   const bySku = Object.fromEntries(rows.map((r) => [r.sku, r]));
   const stockSkus = new Set(stockRows.map((s) => s.sku));
@@ -42,6 +43,7 @@ async function loadProducts() {
       hasStock: true,
       title: c?.title || "",
       category: c?.category || "",
+      brand: c?.brand || "",
       description: c?.description || "",
       usage: c?.usage || "",
       sgr: c?.sgr || "",
@@ -62,6 +64,7 @@ async function loadProducts() {
       hasStock: false,
       title: r.title,
       category: r.category,
+      brand: r.brand,
       description: r.description,
       usage: r.usage,
       sgr: r.sgr,
@@ -93,7 +96,7 @@ productsRouter.get("/:sku/photo", async (req, res) => {
 
 productsRouter.put("/:sku", requireAdmin, async (req, res) => {
   const { sku } = req.params;
-  const { title, category, description, usage, sgr, composition, published, badge, price, stock, stockName } =
+  const { title, category, brand, description, usage, sgr, composition, published, badge, price, stock, stockName } =
     req.body || {};
 
   if (price != null && stock != null) {
@@ -120,12 +123,19 @@ productsRouter.put("/:sku", requireAdmin, async (req, res) => {
     categoryId = rows[0]?.id ?? null;
   }
 
+  let brandId = null;
+  if (brand) {
+    const { rows } = await pool.query("SELECT id FROM brands WHERE name = $1", [brand]);
+    brandId = rows[0]?.id ?? null;
+  }
+
   await pool.query(
-    `INSERT INTO products (sku, title, category_id, description, usage_text, sgr, composition, published, badge, updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, now())
+    `INSERT INTO products (sku, title, category_id, brand_id, description, usage_text, sgr, composition, published, badge, updated_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, now())
      ON CONFLICT (sku) DO UPDATE SET
        title = EXCLUDED.title,
        category_id = EXCLUDED.category_id,
+       brand_id = EXCLUDED.brand_id,
        description = EXCLUDED.description,
        usage_text = EXCLUDED.usage_text,
        sgr = EXCLUDED.sgr,
@@ -137,6 +147,7 @@ productsRouter.put("/:sku", requireAdmin, async (req, res) => {
       sku,
       title || "",
       categoryId,
+      brandId,
       description || "",
       usage || "",
       sgr || "",
