@@ -1,20 +1,26 @@
 import { Router } from "express";
+import ExcelJS from "exceljs";
 import multer from "multer";
 import { pool } from "../db.js";
-import { STOCK } from "../data/stock.js";
 import { requireAdmin } from "./auth.js";
 
 export const productsRouter = Router();
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-const upload = multer({
+const uploadPhoto = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => cb(null, ALLOWED_TYPES.has(file.mimetype)),
 });
 
+const uploadSpreadsheet = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 },
+});
+
 async function loadProducts() {
+  const { rows: stockRows } = await pool.query(`SELECT sku, stock_name, price, stock FROM stock`);
   const { rows } = await pool.query(
     `SELECT p.sku, p.title, c.name AS category, p.description, p.usage_text AS usage, p.sgr,
             p.composition, p.published, (p.image_data IS NOT NULL) AS has_image, p.updated_at, p.badge
@@ -22,15 +28,15 @@ async function loadProducts() {
      LEFT JOIN categories c ON c.id = p.category_id`
   );
   const bySku = Object.fromEntries(rows.map((r) => [r.sku, r]));
-  const stockSkus = new Set(STOCK.map((s) => s.sku));
+  const stockSkus = new Set(stockRows.map((s) => s.sku));
   // Метка версии в URL — чтобы браузер не показывал старое фото из кэша после замены.
   const imageUrl = (r) => (r?.has_image ? `/api/products/${r.sku}/photo?v=${new Date(r.updated_at).getTime()}` : null);
 
-  const fromStock = STOCK.map((s) => {
+  const fromStock = stockRows.map((s) => {
     const c = bySku[s.sku];
     return {
       sku: s.sku,
-      stockName: s.stockName,
+      stockName: s.stock_name,
       price: s.price,
       stock: s.stock,
       hasStock: true,
@@ -87,10 +93,25 @@ productsRouter.get("/:sku/photo", async (req, res) => {
 
 productsRouter.put("/:sku", requireAdmin, async (req, res) => {
   const { sku } = req.params;
-  const { title, category, description, usage, sgr, composition, published, badge } = req.body || {};
+  const { title, category, description, usage, sgr, composition, published, badge, price, stock, stockName } =
+    req.body || {};
 
-  // На складе нет этого артикула — опубликовать его нельзя, что бы ни прислал фронтенд.
-  const hasStock = STOCK.some((s) => s.sku === sku);
+  if (price != null && stock != null) {
+    const priceNum = Number(price);
+    const stockNum = Number(stock);
+    if (!Number.isFinite(priceNum) || priceNum < 0 || !Number.isFinite(stockNum) || stockNum < 0) {
+      return res.status(400).json({ error: "Цена и остаток должны быть неотрицательными числами." });
+    }
+    await pool.query(
+      `INSERT INTO stock (sku, stock_name, price, stock, updated_at) VALUES ($1,$2,$3,$4, now())
+       ON CONFLICT (sku) DO UPDATE SET
+         stock_name = EXCLUDED.stock_name, price = EXCLUDED.price, stock = EXCLUDED.stock, updated_at = now()`,
+      [sku, (stockName || "").trim(), Math.round(priceNum), Math.round(stockNum)]
+    );
+  }
+
+  const { rows: stockRows } = await pool.query("SELECT 1 FROM stock WHERE sku = $1", [sku]);
+  const hasStock = stockRows.length > 0;
   const safePublished = hasStock && !!published;
 
   let categoryId = null;
@@ -129,7 +150,7 @@ productsRouter.put("/:sku", requireAdmin, async (req, res) => {
 });
 
 productsRouter.post("/:sku/image", requireAdmin, (req, res) => {
-  upload.single("photo")(req, res, async (err) => {
+  uploadPhoto.single("photo")(req, res, async (err) => {
     if (err) {
       const message =
         err.code === "LIMIT_FILE_SIZE" ? "Файл слишком большой (максимум 5 МБ)." : "Не удалось загрузить файл.";
@@ -147,5 +168,66 @@ productsRouter.post("/:sku/image", requireAdmin, (req, res) => {
     );
 
     res.json({ imageUrl: `/api/products/${sku}/photo?v=${Date.now()}` });
+  });
+});
+
+// Массовая загрузка цен из Excel — два столбца: артикул, цена. Строку-заголовок
+// и всё, что не похоже на число, просто пропускаем. Осознанное отступление от
+// исходной архитектуры (см. CLAUDE.md) — цена/остаток теперь ведутся на сайте.
+productsRouter.post("/import-prices", requireAdmin, (req, res) => {
+  uploadSpreadsheet.single("file")(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ error: "Не удалось загрузить файл (максимум 2 МБ)." });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: "Файл не выбран." });
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    try {
+      await workbook.xlsx.load(req.file.buffer);
+    } catch {
+      return res.status(400).json({ error: "Не удалось прочитать файл — нужен настоящий файл Excel (.xlsx)." });
+    }
+
+    const sheet = workbook.worksheets[0];
+    if (!sheet) {
+      return res.status(400).json({ error: "В файле нет ни одного листа." });
+    }
+
+    const rows = [];
+    sheet.eachRow((row) => {
+      const sku = String(row.getCell(1).value ?? "").trim().toUpperCase();
+      const priceText = String(row.getCell(2).value ?? "")
+        .replace(",", ".")
+        .replace(/[^\d.]/g, "");
+      const price = priceText === "" ? NaN : Number(priceText);
+      if (!sku || !Number.isFinite(price) || price < 0) return;
+      rows.push({ sku, price: Math.round(price) });
+    });
+
+    if (rows.length === 0) {
+      return res.status(400).json({
+        error: "Не нашли ни одной строки вида «артикул, цена». Первый столбец — артикул, второй — цена.",
+      });
+    }
+
+    let updated = 0;
+    let created = 0;
+    for (const { sku, price } of rows) {
+      const { rows: existing } = await pool.query("SELECT 1 FROM stock WHERE sku = $1", [sku]);
+      if (existing.length) {
+        await pool.query("UPDATE stock SET price = $1, updated_at = now() WHERE sku = $2", [price, sku]);
+        updated++;
+      } else {
+        await pool.query(
+          "INSERT INTO stock (sku, stock_name, price, stock) VALUES ($1, '', $2, 0)",
+          [sku, price]
+        );
+        created++;
+      }
+    }
+
+    res.json({ updated, created, total: rows.length, products: await loadProducts() });
   });
 });

@@ -16,6 +16,9 @@ export function AdminProducts({ products, refreshProducts }) {
   const [saveError, setSaveError] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [importing, setImporting] = useState(false);
+  const [importMessage, setImportMessage] = useState("");
+  const [importError, setImportError] = useState("");
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -64,6 +67,32 @@ export function AdminProducts({ products, refreshProducts }) {
     return data.imageUrl;
   };
 
+  const importPrices = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setImporting(true);
+    setImportError("");
+    setImportMessage("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/products/import-prices", {
+        method: "POST",
+        credentials: "same-origin",
+        body: formData,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Не удалось загрузить файл.");
+      await refreshProducts();
+      setImportMessage(`Готово: обновлено ${data.updated}, добавлено новых ${data.created} (из ${data.total} строк).`);
+    } catch (err) {
+      setImportError(err.message || "Не удалось загрузить файл.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
   if (editing) {
     const p = products.find((x) => x.sku === editing);
     return (
@@ -89,10 +118,32 @@ export function AdminProducts({ products, refreshProducts }) {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
         <p style={{ fontSize: 13, color: INK[60] }}>
-          Список приходит со склада. Здесь заполняется только то, что видит покупатель.
+          Цену и остаток можно обновить сразу у всех — файлом Excel (первый столбец — артикул, второй — цена).
         </p>
-        <Btn onClick={() => setCreating(true)}>+ Новая позиция</Btn>
+        <div className="flex items-center gap-2">
+          <label style={{ fontSize: 13 }}>
+            <span
+              className="inline-flex items-center px-4 py-2.5"
+              style={{ borderRadius: 999, border: `1.5px solid ${INK[18]}`, color: C.ink, cursor: "pointer" }}
+            >
+              {importing ? "Загружаем…" : "Загрузить цены (.xlsx)"}
+            </span>
+            <input type="file" accept=".xlsx" onChange={importPrices} disabled={importing} style={{ display: "none" }} />
+          </label>
+          <Btn onClick={() => setCreating(true)}>+ Новая позиция</Btn>
+        </div>
       </div>
+
+      {importMessage && (
+        <p className="mb-3" style={{ fontSize: 12, color: C.violet }}>
+          {importMessage}
+        </p>
+      )}
+      {importError && (
+        <p className="mb-3" style={{ fontSize: 12, color: C.danger }}>
+          {importError}
+        </p>
+      )}
 
       <input
         value={search}

@@ -4,7 +4,6 @@ import { Field } from "../components/Field";
 import { ProductPhoto } from "../components/ProductPhoto";
 import { PRODUCT_BADGES } from "../constants/catalog";
 import { C, INK, inputStyle } from "../constants/theme";
-import { money } from "../utils/format";
 import { ProductDetail } from "../shop/ProductDetail";
 
 export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, onSave, onUploadImage, error }) {
@@ -32,6 +31,9 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
     composition: p.composition.length ? p.composition : [{ n: "", v: "" }],
     published: p.published,
     badge: p.badge || "",
+    price: p.price != null ? String(p.price) : "",
+    stock: p.stock != null ? String(p.stock) : "",
+    stockName: p.stockName || "",
   });
   const upd = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const updRow = (i, k) => (e) => {
@@ -39,7 +41,17 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
     setF({ ...f, composition });
   };
 
-  const clean = { ...f, composition: f.composition.filter((r) => r.n.trim()) };
+  const priceNum = Number(f.price);
+  const stockNum = Number(f.stock);
+  const priceValid = f.price !== "" && Number.isFinite(priceNum) && priceNum >= 0;
+  const stockValid = f.stock !== "" && Number.isFinite(stockNum) && stockNum >= 0;
+
+  const clean = {
+    ...f,
+    composition: f.composition.filter((r) => r.n.trim()),
+    price: f.price === "" ? null : priceNum,
+    stock: f.stock === "" ? null : stockNum,
+  };
 
   const skuTrimmed = sku.trim().toUpperCase();
   const skuError = isNew
@@ -50,7 +62,7 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
       : ""
     : "";
 
-  const canPublish = f.title.trim() && f.category && f.sgr.trim() && p.hasStock;
+  const canPublish = f.title.trim() && f.category && f.sgr.trim() && priceValid && stockValid;
   const canSave = (isNew ? !skuError : true) && !saving;
 
   const handleSave = async () => {
@@ -96,10 +108,7 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
         </div>
 
         {isNew ? (
-          <Field
-            label="Артикул"
-            hint="Такой же, как в учётной системе. Цену и остаток по нему подтянет разработчик или интеграция со складом — здесь их не завести."
-          >
+          <Field label="Артикул" hint="Такой же, как в учётной системе (МойСклад или аналог).">
             <input
               value={sku}
               onChange={(e) => setSku(e.target.value)}
@@ -113,17 +122,6 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
               </span>
             )}
           </Field>
-        ) : p.hasStock ? (
-          <div className="rounded-2xl p-4 mb-5" style={{ background: 'rgba(104,91,197,.12)' }}>
-            <div style={{ fontSize: 10, color: C.violet }}>ИЗ СКЛАДА · ТОЛЬКО ЧТЕНИЕ</div>
-            <div className="mt-1" style={{ fontSize: 14 }}>
-              {p.stockName}
-            </div>
-            <div style={{ fontSize: 12, color: INK[60] }}>
-              {money(p.price)} · остаток {p.stock} шт
-            </div>
-            {/* INTEGRATION: сюда встанут данные из учётной системы по артикулу */}
-          </div>
         ) : (
           <div className="rounded-2xl p-4 mb-5" style={{ background: C.card, border: `1px solid ${INK[12]}` }}>
             <div style={{ fontSize: 10, color: INK[60] }}>АРТИКУЛ</div>
@@ -133,10 +131,41 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
           </div>
         )}
 
-        {!p.hasStock && (
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Цена, ₽">
+            <input
+              type="number"
+              min="0"
+              value={f.price}
+              onChange={upd("price")}
+              className="w-full px-3 py-2 rounded-lg"
+              style={inputStyle}
+            />
+          </Field>
+          <Field label="Остаток, шт">
+            <input
+              type="number"
+              min="0"
+              value={f.stock}
+              onChange={upd("stock")}
+              className="w-full px-3 py-2 rounded-lg"
+              style={inputStyle}
+            />
+          </Field>
+        </div>
+        <Field label="Название на складе" hint="Как товар называется в учётной системе — необязательно совпадает с названием на сайте.">
+          <input
+            value={f.stockName}
+            onChange={upd("stockName")}
+            className="w-full px-3 py-2 rounded-lg"
+            style={inputStyle}
+          />
+        </Field>
+
+        {(!priceValid || !stockValid) && (
           <div className="rounded-xl p-3 mb-5" style={{ background: 'rgba(255,141,109,.15)', border: `1.5px solid ${C.peach}` }}>
             <span style={{ fontSize: 11, color: C.peach }}>
-              Нет цены и остатка со склада — товар нельзя показать на сайте, пока он там не появится.
+              Заполните цену и остаток — без них товар нельзя показать на сайте.
             </span>
           </div>
         )}
@@ -265,7 +294,7 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
           Показывать на сайте
           {!canPublish && (
             <span style={{ fontSize: 12, color: INK[60] }}>
-              {!p.hasStock ? "— нет цены и остатка со склада" : "— заполните название, категорию и СГР"}
+              {!priceValid || !stockValid ? "— заполните цену и остаток" : "— заполните название, категорию и СГР"}
             </span>
           )}
         </label>
