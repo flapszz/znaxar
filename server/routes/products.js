@@ -1,43 +1,30 @@
 import { Router } from "express";
-import { unlink } from "node:fs/promises";
-import path from "node:path";
 import multer from "multer";
 import { pool } from "../db.js";
 import { STOCK } from "../data/stock.js";
 import { requireAdmin } from "./auth.js";
-import { UPLOADS_DIR } from "../uploads.js";
 
 export const productsRouter = Router();
 
-const ALLOWED_TYPES = {
-  "image/jpeg": ".jpg",
-  "image/png": ".png",
-  "image/webp": ".webp",
-};
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: UPLOADS_DIR,
-    filename: (req, file, cb) => {
-      const sku = (req.params.sku || "photo").replace(/[^A-Za-z0-9_-]/g, "");
-      const ext = ALLOWED_TYPES[file.mimetype] || path.extname(file.originalname);
-      cb(null, `${sku}-${Date.now()}${ext}`);
-    },
-  }),
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => cb(null, Boolean(ALLOWED_TYPES[file.mimetype])),
+  fileFilter: (req, file, cb) => cb(null, ALLOWED_TYPES.has(file.mimetype)),
 });
 
 async function loadProducts() {
   const { rows } = await pool.query(
     `SELECT p.sku, p.title, c.name AS category, p.description, p.usage_text AS usage, p.sgr,
-            p.composition, p.published, p.image_filename, p.badge
+            p.composition, p.published, (p.image_data IS NOT NULL) AS has_image, p.updated_at, p.badge
      FROM products p
      LEFT JOIN categories c ON c.id = p.category_id`
   );
   const bySku = Object.fromEntries(rows.map((r) => [r.sku, r]));
   const stockSkus = new Set(STOCK.map((s) => s.sku));
-  const imageUrl = (r) => (r?.image_filename ? `/uploads/${r.image_filename}` : null);
+  // Метка версии в URL — чтобы браузер не показывал старое фото из кэша после замены.
+  const imageUrl = (r) => (r?.has_image ? `/api/products/${r.sku}/photo?v=${new Date(r.updated_at).getTime()}` : null);
 
   const fromStock = STOCK.map((s) => {
     const c = bySku[s.sku];
@@ -83,6 +70,19 @@ async function loadProducts() {
 
 productsRouter.get("/", async (req, res) => {
   res.json(await loadProducts());
+});
+
+productsRouter.get("/:sku/photo", async (req, res) => {
+  const { rows } = await pool.query("SELECT image_data, image_mimetype FROM products WHERE sku = $1", [
+    req.params.sku,
+  ]);
+  const row = rows[0];
+  if (!row?.image_data) {
+    return res.status(404).end();
+  }
+  res.set("Content-Type", row.image_mimetype);
+  res.set("Cache-Control", "public, max-age=31536000, immutable");
+  res.send(row.image_data);
 });
 
 productsRouter.put("/:sku", requireAdmin, async (req, res) => {
@@ -140,19 +140,12 @@ productsRouter.post("/:sku/image", requireAdmin, (req, res) => {
     }
 
     const sku = req.params.sku;
-    const { rows } = await pool.query("SELECT image_filename FROM products WHERE sku = $1", [sku]);
-    const oldFilename = rows[0]?.image_filename;
-
     await pool.query(
-      `INSERT INTO products (sku, image_filename, updated_at) VALUES ($1, $2, now())
-       ON CONFLICT (sku) DO UPDATE SET image_filename = EXCLUDED.image_filename, updated_at = now()`,
-      [sku, req.file.filename]
+      `INSERT INTO products (sku, image_data, image_mimetype, updated_at) VALUES ($1, $2, $3, now())
+       ON CONFLICT (sku) DO UPDATE SET image_data = EXCLUDED.image_data, image_mimetype = EXCLUDED.image_mimetype, updated_at = now()`,
+      [sku, req.file.buffer, req.file.mimetype]
     );
 
-    if (oldFilename && oldFilename !== req.file.filename) {
-      unlink(path.join(UPLOADS_DIR, oldFilename)).catch(() => {});
-    }
-
-    res.json({ imageUrl: `/uploads/${req.file.filename}` });
+    res.json({ imageUrl: `/api/products/${sku}/photo?v=${Date.now()}` });
   });
 });

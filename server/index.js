@@ -5,7 +5,6 @@ import connectPgSimple from "connect-pg-simple";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { pool } from "./db.js";
-import { UPLOADS_DIR } from "./uploads.js";
 import { authRouter } from "./routes/auth.js";
 import { productsRouter } from "./routes/products.js";
 import { ordersRouter } from "./routes/orders.js";
@@ -22,7 +21,6 @@ const PgSession = connectPgSimple(session);
 // За прокси хостинга (Render и т.п.) — иначе secure-куки и req.ip работают неверно.
 if (isProduction) app.set("trust proxy", 1);
 
-app.use("/uploads", express.static(UPLOADS_DIR));
 app.use(express.json());
 app.use(
   session({
@@ -51,7 +49,7 @@ app.use("/api/legal", legalRouter);
 if (isProduction) {
   const DIST_DIR = path.join(__dirname, "..", "dist");
   app.use(express.static(DIST_DIR));
-  app.get(/^(?!\/api|\/uploads).*/, (req, res) => {
+  app.get(/^(?!\/api).*/, (req, res) => {
     res.sendFile(path.join(DIST_DIR, "index.html"));
   });
 }
