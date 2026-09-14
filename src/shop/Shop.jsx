@@ -83,7 +83,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="max-w-[1600px] mx-auto px-4 py-6">
       <div
         className="flex flex-col"
         style={{ borderRadius: RADIUS.frame, overflow: "hidden", boxShadow: SHADOW_FRAME, background: C.surface }}
@@ -575,7 +575,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
       {screen === "catalog" && count > 0 && (
         <div
-          className="fixed left-4 right-4 max-w-6xl mx-auto px-5 py-3.5 flex items-center justify-between transition-all"
+          className="fixed left-4 right-4 max-w-[1600px] mx-auto px-5 py-3.5 flex items-center justify-between transition-all"
           style={{
             bottom: cookieBannerVisible ? 76 : 16,
             background: C.ink,
