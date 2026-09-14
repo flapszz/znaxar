@@ -5,4 +5,7 @@
   <url><loc>https://example.invalid/privacy</loc></url>
   <url><loc>https://example.invalid/consent</loc></url>
   <url><loc>https://example.invalid/terms</loc></url>
+  <url><loc>https://example.invalid/about</loc></url>
+  <url><loc>https://example.invalid/articles</loc></url>
+  <url><loc>https://example.invalid/news</loc></url>
 </urlset>
