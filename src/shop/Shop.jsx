@@ -425,7 +425,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   Ничего не нашлось. Попробуйте другую категорию.
                 </div>
               ) : (
-                <div className="mt-5 grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+                <div className="mt-5 grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
                   {visible.map((p) => {
                     const state = stockState(p.stock);
                     const inCart = cart.find((i) => i.sku === p.sku);
