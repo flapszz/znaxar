@@ -14,6 +14,14 @@ import { ProductDetail } from "./ProductDetail";
 
 const SORTS = ["популярные", "дешевле", "дороже"];
 
+// Две готовые вариации ширины страницы — переключить одной строкой, если
+// понадобится: FRAME_WIDTH = "full" тянет интерфейс на весь экран без полей
+// по бокам (без «страницы на листе»), "boxed" — текущий вариант с рамкой,
+// тенью и потолком в 1600px, как в макете Клод-дизайна.
+const FRAME_WIDTH = "boxed"; // "boxed" | "full"
+const FRAME_WIDTH_CLASS = FRAME_WIDTH === "full" ? "w-full" : "max-w-[1600px] mx-auto";
+const FRAME_CLASS = `${FRAME_WIDTH_CLASS} ${FRAME_WIDTH === "full" ? "px-3 py-3" : "px-4 py-6"}`;
+
 export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, cookieBannerVisible }) {
   const [cat, setCat] = useState("Все");
   const [brand, setBrand] = useState("Все");
@@ -83,7 +91,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 py-6">
+    <div className={FRAME_CLASS}>
       <div
         className="flex flex-col"
         style={{ borderRadius: RADIUS.frame, overflow: "hidden", boxShadow: SHADOW_FRAME, background: C.surface }}
@@ -575,7 +583,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
       {screen === "catalog" && count > 0 && (
         <div
-          className="fixed left-4 right-4 max-w-[1600px] mx-auto px-5 py-3.5 flex items-center justify-between transition-all"
+          className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all`}
           style={{
             bottom: cookieBannerVisible ? 76 : 16,
             background: C.ink,
