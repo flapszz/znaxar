@@ -146,6 +146,17 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 );
               })}
             </div>
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <a href="/about" className="px-3 py-1" style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.12)", color: C.surface, fontSize: 11.5 }}>
+                О нас
+              </a>
+              <a href="/articles" className="px-3 py-1" style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.12)", color: C.surface, fontSize: 11.5 }}>
+                Статьи
+              </a>
+              <a href="/news" className="px-3 py-1" style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.12)", color: C.surface, fontSize: 11.5 }}>
+                Новости
+              </a>
+            </div>
           </div>
         )}
 
@@ -188,6 +199,30 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               <Heart size={15} fill={showFavorites ? C.ink : "none"} />
               Избранное {favorites.length > 0 ? `(${favorites.length})` : ""}
             </button>
+
+            <div className="flex gap-1.5 flex-wrap">
+              <a
+                href="/about"
+                className="px-3 py-1.5"
+                style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.08)", color: "rgba(251,248,243,.9)", fontSize: 12.5, fontWeight: 500 }}
+              >
+                О нас
+              </a>
+              <a
+                href="/articles"
+                className="px-3 py-1.5"
+                style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.08)", color: "rgba(251,248,243,.9)", fontSize: 12.5, fontWeight: 500 }}
+              >
+                Статьи
+              </a>
+              <a
+                href="/news"
+                className="px-3 py-1.5"
+                style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.08)", color: "rgba(251,248,243,.9)", fontSize: 12.5, fontWeight: 500 }}
+              >
+                Новости
+              </a>
+            </div>
 
             <div>
               <div style={{ ...OVERLINE, color: "rgba(251,248,243,.45)" }}>Категории</div>
@@ -265,17 +300,6 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
             )}
 
             <div className="mt-auto pt-4" style={{ borderTop: "1px solid rgba(251,248,243,.15)" }}>
-              <div className="flex flex-col gap-1 mb-3">
-                <a href="/about" className="text-left" style={{ fontSize: 13, color: "rgba(251,248,243,.85)" }}>
-                  О нас
-                </a>
-                <a href="/articles" className="text-left" style={{ fontSize: 13, color: "rgba(251,248,243,.85)" }}>
-                  Статьи
-                </a>
-                <a href="/news" className="text-left" style={{ fontSize: 13, color: "rgba(251,248,243,.85)" }}>
-                  Новости
-                </a>
-              </div>
               <Plaque compact dark />
               <div className="mt-2 flex flex-col gap-1">
                 <a href="/privacy" target="_blank" rel="noopener" className="underline" style={{ fontSize: 11, color: "rgba(251,248,243,.5)" }}>
