@@ -13,7 +13,20 @@ const submitLimiter = rateLimit({
   limit: 15,
   standardHeaders: true,
   legacyHeaders: false,
+  skipFailedRequests: true, // не штрафуем за ошибку валидации — только за реально созданные заявки
   message: { error: "Слишком много заявок подряд. Попробуйте позже или позвоните нам напрямую." },
+});
+
+// Отдельно — не больше 1 заявки в минуту с одного IP. Часовой лимит выше не
+// спасает от пачки в одну секунду (просто быстрее исчерпает свои 15), а этот
+// ограничивает саму частоту — чтобы менеджеру не прилетело 10 заявок разом.
+const burstLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 1,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipFailedRequests: true, // ошибка валидации не считается — иначе покупатель с опечаткой не сможет сразу поправить и отправить снова
+  message: { error: "Заявка уже отправляется — подождите минуту перед повторной отправкой." },
 });
 
 function formatOrder(r) {
@@ -47,7 +60,7 @@ ordersRouter.get("/", requireAdmin, async (req, res) => {
   res.json(rows.map(formatOrder));
 });
 
-ordersRouter.post("/", submitLimiter, async (req, res) => {
+ordersRouter.post("/", burstLimiter, submitLimiter, async (req, res) => {
   const { name, phone, city, comment, items, consentGiven, website } = req.body || {};
 
   // Honeypot: обычный посетитель это поле не видит и не заполняет — заполненное
