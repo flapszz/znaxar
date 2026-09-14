@@ -1,9 +1,20 @@
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import { pool } from "../db.js";
 import { requireAdmin } from "./auth.js";
 import { CONSENT } from "../legal.js";
 
 export const ordersRouter = Router();
+
+// Не более 15 заявок в час с одного IP — иначе базу можно завалить
+// фейковыми заявками без единого подбора пароля.
+const submitLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Слишком много заявок подряд. Попробуйте позже или позвоните нам напрямую." },
+});
 
 function formatOrder(r) {
   const createdAt = new Date(r.created_at).toLocaleString("ru-RU", {
@@ -36,7 +47,7 @@ ordersRouter.get("/", requireAdmin, async (req, res) => {
   res.json(rows.map(formatOrder));
 });
 
-ordersRouter.post("/", async (req, res) => {
+ordersRouter.post("/", submitLimiter, async (req, res) => {
   const { name, phone, city, comment, items, consentGiven, website } = req.body || {};
 
   // Honeypot: обычный посетитель это поле не видит и не заполняет — заполненное
