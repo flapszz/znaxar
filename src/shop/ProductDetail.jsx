@@ -19,10 +19,10 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
       <div className="flex gap-8 flex-wrap">
         <div style={{ flex: "1 1 320px", minWidth: 0 }}>
           <div
-            className="flex items-center justify-center p-8"
+            className="flex items-center justify-center p-8 mx-auto w-full max-w-xs"
             style={{ borderRadius: RADIUS.card, background: tintForSku(p.sku) }}
           >
-            <div className="w-full max-w-xs">
+            <div className="w-full">
               <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} badge={p.badge} />
             </div>
           </div>
