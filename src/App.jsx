@@ -2,22 +2,28 @@ import { useEffect, useMemo, useState } from "react";
 import { Activity } from "lucide-react";
 import { Admin } from "./admin/Admin";
 import { AdminGate } from "./admin/AdminGate";
+import { AboutContent } from "./components/AboutContent";
 import { ConsentContent } from "./components/ConsentContent";
 import { CookieBanner } from "./components/CookieBanner";
 import { OfferContent } from "./components/OfferContent";
 import { PolicyContent } from "./components/PolicyContent";
+import { PublicationsPage } from "./components/PublicationsPage";
 import { C, HEAD, INK } from "./constants/theme";
 import { LegalPage } from "./legal/LegalPage";
 import { Shop } from "./shop/Shop";
 
-const LEGAL_ROUTES = {
+const STATIC_ROUTES = {
   "/privacy": { title: "Политика в отношении обработки персональных данных", Content: PolicyContent },
   "/consent": { title: "Согласие на обработку персональных данных", Content: ConsentContent },
   "/terms": { title: "Оплата, доставка и возврат", Content: OfferContent },
+  "/about": { title: "О нас", Content: AboutContent },
 };
 
+const PUBLICATION_PATH = /^\/(articles|news)(?:\/([^/]+))?$/;
+
 export default function App() {
-  const legalRoute = LEGAL_ROUTES[window.location.pathname];
+  const staticRoute = STATIC_ROUTES[window.location.pathname];
+  const pubMatch = PUBLICATION_PATH.exec(window.location.pathname);
   const [cookieVisible, setCookieVisible] = useState(false);
   const [mode, setModeState] = useState(() => (window.location.hash === "#admin" ? "admin" : "shop"));
   const setMode = (next) => {
@@ -99,11 +105,21 @@ export default function App() {
     return order.id;
   };
 
-  if (legalRoute) {
-    const { title, Content } = legalRoute;
+  if (staticRoute) {
+    const { title, Content } = staticRoute;
     return (
       <LegalPage title={title}>
         <Content />
+      </LegalPage>
+    );
+  }
+
+  if (pubMatch) {
+    const type = pubMatch[1] === "articles" ? "article" : "news";
+    const sectionTitle = pubMatch[1] === "articles" ? "Статьи" : "Новости";
+    return (
+      <LegalPage title={sectionTitle}>
+        <PublicationsPage type={type} slug={pubMatch[2] || null} title={sectionTitle} />
       </LegalPage>
     );
   }

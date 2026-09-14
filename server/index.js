@@ -11,6 +11,7 @@ import { ordersRouter } from "./routes/orders.js";
 import { collectionsRouter } from "./routes/collections.js";
 import { categoriesRouter } from "./routes/categories.js";
 import { brandsRouter } from "./routes/brands.js";
+import { publicationsRouter } from "./routes/publications.js";
 import { legalRouter } from "./routes/legal.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -44,6 +45,7 @@ app.use("/api/orders", ordersRouter);
 app.use("/api/collections", collectionsRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/brands", brandsRouter);
+app.use("/api/publications", publicationsRouter);
 app.use("/api/legal", legalRouter);
 
 // В проде один и тот же процесс отдаёт и API, и собранный фронтенд (Vite build) —

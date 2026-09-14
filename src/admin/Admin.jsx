@@ -5,6 +5,7 @@ import { AdminCategories } from "./AdminCategories";
 import { AdminCollections } from "./AdminCollections";
 import { AdminOrders } from "./AdminOrders";
 import { AdminProducts } from "./AdminProducts";
+import { AdminPublications } from "./AdminPublications";
 
 export function Admin({ products, bySku, refreshProducts }) {
   const [tab, setTab] = useState("products");
@@ -30,6 +31,8 @@ export function Admin({ products, bySku, refreshProducts }) {
           ["categories", "Категории"],
           ["brands", "Бренды"],
           ["collections", "Подборки"],
+          ["articles", "Статьи"],
+          ["news", "Новости"],
           ["orders", `Заявки (${newCount} новых)`],
         ].map(([k, label]) => (
           <button
@@ -56,6 +59,10 @@ export function Admin({ products, bySku, refreshProducts }) {
         <AdminBrands />
       ) : tab === "collections" ? (
         <AdminCollections products={products} />
+      ) : tab === "articles" ? (
+        <AdminPublications type="article" singular="Новая статья" />
+      ) : tab === "news" ? (
+        <AdminPublications type="news" singular="Новая новость" />
       ) : orders === null ? (
         <p style={{ fontSize: 13, color: INK[60] }}>Загружаем заявки…</p>
       ) : (
