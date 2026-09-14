@@ -9,6 +9,7 @@ import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, SHADOW_FRAME } from "../consta
 import { SELLER } from "../data/seller";
 import { STOCK_LABEL, money, stockState } from "../utils/format";
 import { useFavorites } from "../utils/useFavorites";
+import { setProductJsonLd, setSeo } from "../utils/seo";
 import { Checkout } from "./Checkout";
 import { ProductDetail } from "./ProductDetail";
 
@@ -22,6 +23,15 @@ const FRAME_WIDTH = "boxed"; // "boxed" | "full"
 const FRAME_WIDTH_CLASS = FRAME_WIDTH === "full" ? "w-full" : "max-w-[1600px] mx-auto";
 const FRAME_CLASS = `${FRAME_WIDTH_CLASS} ${FRAME_WIDTH === "full" ? "px-3 py-3" : "px-4 py-6"}`;
 
+// У товара и заявки настоящие адреса (/product/SKU, /checkout) — чтобы можно
+// было поделиться ссылкой на товар и чтобы его вообще было что индексировать.
+function screenFromPath(pathname) {
+  const productMatch = /^\/product\/([^/]+)$/.exec(pathname);
+  if (productMatch) return { screen: "product", sku: decodeURIComponent(productMatch[1]) };
+  if (pathname === "/checkout") return { screen: "checkout", sku: null };
+  return { screen: "catalog", sku: null };
+}
+
 export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, cookieBannerVisible }) {
   const [cat, setCat] = useState("Все");
   const [brand, setBrand] = useState("Все");
@@ -30,8 +40,8 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
   const [inStockOnly, setInStockOnly] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const { favorites, toggleFavorite } = useFavorites();
-  const [screen, setScreen] = useState("catalog"); // catalog | product | checkout | done
-  const [openSku, setOpenSku] = useState(null);
+  const [screen, setScreen] = useState(() => screenFromPath(window.location.pathname).screen); // catalog | product | checkout | done
+  const [openSku, setOpenSku] = useState(() => screenFromPath(window.location.pathname).sku);
   const [doneId, setDoneId] = useState(null);
   const [collections, setCollections] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -53,6 +63,36 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
       .catch(() => setBrands([]));
   }, []);
 
+  // Кнопки «назад/вперёд» браузера должны переключать экран, а не просто
+  // менять адрес в строке без последствий.
+  useEffect(() => {
+    const onPopState = () => {
+      const next = screenFromPath(window.location.pathname);
+      setScreen(next.screen);
+      setOpenSku(next.sku);
+      window.scrollTo({ top: 0 });
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  // Заголовок вкладки, описание и микроразметка товара — гуглу этого хватает
+  // (он рендерит JS), превью в мессенджерах без SSR так не работает.
+  useEffect(() => {
+    const p = screen === "product" ? bySku[openSku] : null;
+    if (p) {
+      setSeo({
+        title: p.title,
+        description: `${p.title}. ${p.stockName || ""} ${p.description}`.trim(),
+        path: `/product/${encodeURIComponent(p.sku)}`,
+      });
+      setProductJsonLd(p);
+    } else {
+      setSeo({ path: "/" });
+      setProductJsonLd(null);
+    }
+  }, [screen, openSku, bySku]);
+
   const activeCollection = cat.startsWith("col:")
     ? collections.find((col) => `col:${col.id}` === cat)
     : null;
@@ -72,18 +112,23 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
   const count = cart.reduce((s, i) => s + i.qty, 0);
   const total = cart.reduce((s, i) => s + i.qty * (bySku[i.sku]?.price || 0), 0);
 
-  const openProduct = (sku) => {
+  const openProduct = (sku, replace) => {
     setOpenSku(sku);
     setScreen("product");
     window.scrollTo({ top: 0 });
+    const url = `/product/${encodeURIComponent(sku)}`;
+    if (replace) window.history.replaceState({}, "", url);
+    else window.history.pushState({}, "", url);
   };
   const goCheckout = () => {
     setScreen("checkout");
     window.scrollTo({ top: 0 });
+    window.history.pushState({}, "", "/checkout");
   };
   const backToCatalog = () => {
     setScreen("catalog");
     window.scrollTo({ top: 0 });
+    window.history.pushState({}, "", "/");
   };
   const scrollToGrid = () => {
     setCat("Все");
@@ -287,7 +332,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         )}
 
         <div className="p-5 sm:p-8" style={{ flex: "9999 1 560px", minWidth: 0 }}>
-          {screen === "product" && openSku && bySku[openSku] && (
+          {screen === "product" && openSku && (bySku[openSku] ? (
             <ProductDetail
               p={bySku[openSku]}
               related={products.filter((p) => p.sku !== openSku && p.published && p.hasStock).slice(0, 4)}
@@ -300,7 +345,17 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               isFavorite={favorites.includes(openSku)}
               onToggleFavorite={() => toggleFavorite(openSku)}
             />
-          )}
+          ) : (
+            <div>
+              <h1 style={{ ...HEAD, fontSize: 22, color: C.ink }}>Такого товара не нашлось</h1>
+              <p className="mt-2" style={{ fontSize: 14, color: INK[60] }}>
+                Возможно, он снят с публикации или ссылка устарела.
+              </p>
+              <button onClick={() => backToCatalog()} className="mt-4 underline" style={{ fontSize: 13, color: INK[60] }}>
+                ← Ко всем товарам
+              </button>
+            </div>
+          ))}
 
           {screen === "checkout" && (
             <Checkout

@@ -13,10 +13,26 @@ import { LegalPage } from "./legal/LegalPage";
 import { Shop } from "./shop/Shop";
 
 const STATIC_ROUTES = {
-  "/privacy": { title: "Политика в отношении обработки персональных данных", Content: PolicyContent },
-  "/consent": { title: "Согласие на обработку персональных данных", Content: ConsentContent },
-  "/terms": { title: "Оплата, доставка и возврат", Content: OfferContent },
-  "/about": { title: "О нас", Content: AboutContent },
+  "/privacy": {
+    title: "Политика в отношении обработки персональных данных",
+    description: "Как «Знахарь» обрабатывает персональные данные покупателей — в соответствии с 152-ФЗ.",
+    Content: PolicyContent,
+  },
+  "/consent": {
+    title: "Согласие на обработку персональных данных",
+    description: "Текст согласия на обработку персональных данных, под которым покупатель ставит галочку при оформлении заявки.",
+    Content: ConsentContent,
+  },
+  "/terms": {
+    title: "Оплата, доставка и возврат",
+    description: "Условия оплаты при получении, доставки СДЭК и возврата товара в магазине «Знахарь».",
+    Content: OfferContent,
+  },
+  "/about": {
+    title: "О нас",
+    description: "«Знахарь» — витрина того же склада БАД, что и наш магазин на Wildberries, без наценки маркетплейса.",
+    Content: AboutContent,
+  },
 };
 
 const PUBLICATION_PATH = /^\/(articles|news)(?:\/([^/]+))?$/;
@@ -106,9 +122,9 @@ export default function App() {
   };
 
   if (staticRoute) {
-    const { title, Content } = staticRoute;
+    const { title, description, Content } = staticRoute;
     return (
-      <LegalPage title={title}>
+      <LegalPage title={title} description={description}>
         <Content />
       </LegalPage>
     );

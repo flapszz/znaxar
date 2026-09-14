@@ -13,6 +13,7 @@ import { categoriesRouter } from "./routes/categories.js";
 import { brandsRouter } from "./routes/brands.js";
 import { publicationsRouter } from "./routes/publications.js";
 import { legalRouter } from "./routes/legal.js";
+import { sitemapRouter } from "./routes/sitemap.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProduction = process.env.NODE_ENV === "production";
@@ -47,6 +48,7 @@ app.use("/api/categories", categoriesRouter);
 app.use("/api/brands", brandsRouter);
 app.use("/api/publications", publicationsRouter);
 app.use("/api/legal", legalRouter);
+app.use(sitemapRouter);
 
 // В проде один и тот же процесс отдаёт и API, и собранный фронтенд (Vite build) —
 // отдельного статического хостинга не заводим, чтобы уложиться в один бесплатный сервис.
