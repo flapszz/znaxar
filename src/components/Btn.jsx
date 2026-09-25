@@ -5,11 +5,11 @@ const VARIANT_CLASS = { solid: "btn-solid", acid: "btn-acid", outline: "btn-outl
 export function Btn({ children, onClick, variant = "solid", disabled, full, type = "button" }) {
   let style;
   if (variant === "acid") {
-    style = { background: disabled ? INK[12] : C.acid, color: disabled ? INK[45] : C.ink };
+    style = { background: disabled ? INK[12] : C.acid, color: disabled ? "rgba(0,39,82,.45)" : C.ink };
   } else if (variant === "outline" || variant === "ghost") {
-    style = { background: "transparent", color: disabled ? INK[45] : C.ink, border: `1.5px solid ${disabled ? INK[12] : INK[18]}` };
+    style = { background: "transparent", color: disabled ? "rgba(0,39,82,.45)" : C.ink, border: `1.5px solid ${disabled ? INK[12] : INK[18]}` };
   } else {
-    style = { background: disabled ? INK[12] : C.violet, color: disabled ? INK[45] : C.surface };
+    style = { background: disabled ? INK[12] : C.violet, color: disabled ? "rgba(0,39,82,.45)" : C.surface };
   }
 
   return (

@@ -168,7 +168,7 @@ export function Checkout({ cart, bySku, setQty, total, onBack, onSubmit }) {
 
         <div style={{ flex: "1 1 280px", minWidth: 0 }}>
           <div className="p-5" style={{ background: C.ink, borderRadius: RADIUS.card, color: C.surface }}>
-            <div style={{ ...OVERLINE, color: "rgba(251,248,243,.5)" }}>Ваша заявка</div>
+            <div style={{ ...OVERLINE, color: "rgba(251,248,243,.62)" }}>Ваша заявка</div>
             <div className="mt-3">
               {cart.map((i) => {
                 const p = bySku[i.sku];
@@ -179,7 +179,7 @@ export function Checkout({ cart, bySku, setQty, total, onBack, onSubmit }) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div style={{ fontSize: 13 }}>{p.title}</div>
-                      <div style={{ fontSize: 12, color: "rgba(251,248,243,.6)" }}>{money(p.price)}</div>
+                      <div style={{ fontSize: 12, color: "rgba(251,248,243,.72)" }}>{money(p.price)}</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button onClick={() => setQty(i.sku, i.qty - 1)} style={{ color: "rgba(251,248,243,.7)", padding: "0 4px" }}>

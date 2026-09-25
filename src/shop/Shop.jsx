@@ -4,7 +4,6 @@ import { Badge } from "../components/Badge";
 import { Btn } from "../components/Btn";
 import { ProductPhoto } from "../components/ProductPhoto";
 import { Plaque } from "../components/Plaque";
-import { TrustBadges } from "../components/TrustBadges";
 import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, SHADOW_FRAME } from "../constants/theme";
 import { SELLER } from "../data/seller";
 import { STOCK_LABEL, money, stockState } from "../utils/format";
@@ -161,6 +160,19 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               />
             </label>
             <div className="flex items-center gap-2 overflow-x-auto flex-nowrap pb-1" style={{ scrollbarWidth: "none" }}>
+              <button
+                onClick={() => setShowFavorites(!showFavorites)}
+                className="px-3.5 py-1.5 shrink-0 flex items-center gap-1.5"
+                style={{
+                  borderRadius: RADIUS.pill,
+                  background: showFavorites ? C.acid : "rgba(255,255,255,.15)",
+                  color: showFavorites ? C.ink : C.surface,
+                  fontSize: 12,
+                  fontWeight: showFavorites ? 600 : 400,
+                }}
+              >
+                <Heart size={13} fill={showFavorites ? C.ink : "none"} /> Избранное
+              </button>
               {["Все", ...categories.map((c) => c.name)].map((c) => (
                 <button
                   key={c}
@@ -217,7 +229,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               className="flex items-center gap-2 px-3.5 py-2"
               style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.08)" }}
             >
-              <Search size={15} color="rgba(251,248,243,.5)" />
+              <Search size={15} color="rgba(251,248,243,.62)" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -233,7 +245,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               style={{
                 borderRadius: RADIUS.pill,
                 background: showFavorites ? C.acid : "rgba(255,255,255,.08)",
-                color: showFavorites ? C.ink : "rgba(251,248,243,.85)",
+                color: showFavorites ? C.ink : "#FBF8F3",
                 fontSize: 13,
                 fontWeight: showFavorites ? 600 : 400,
               }}
@@ -243,7 +255,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
             </button>
 
             <div>
-              <div style={{ ...OVERLINE, color: "rgba(251,248,243,.45)" }}>Категории</div>
+              <div style={{ ...OVERLINE, color: "rgba(251,248,243,.62)" }}>Категории</div>
               <div className="mt-2 flex flex-col gap-1">
                 {["Все", ...categories.map((c) => c.name)].map((c) => (
                   <button
@@ -253,7 +265,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     style={{
                       borderRadius: RADIUS.pill,
                       background: cat === c ? C.acid : "transparent",
-                      color: cat === c ? C.ink : "rgba(251,248,243,.85)",
+                      color: cat === c ? C.ink : "#FBF8F3",
                       fontSize: 13,
                       fontWeight: cat === c ? 600 : 400,
                     }}
@@ -266,7 +278,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
             {brands.length > 0 && (
               <div>
-                <div style={{ ...OVERLINE, color: "rgba(251,248,243,.45)" }}>Бренд</div>
+                <div style={{ ...OVERLINE, color: "rgba(251,248,243,.62)" }}>Бренд</div>
                 <div className="mt-2 flex flex-col gap-1">
                   {["Все", ...brands.map((b) => b.name)].map((b) => (
                     <button
@@ -275,8 +287,8 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                       className="flex items-center justify-between px-3 py-1.5 text-left transition-colors"
                       style={{
                         borderRadius: RADIUS.pill,
-                        background: brand === b ? C.acid : "transparent",
-                        color: brand === b ? C.ink : "rgba(251,248,243,.85)",
+                        background: brand === b ? "rgba(251,248,243,.16)" : "transparent",
+                        color: C.surface,
                         fontSize: 13,
                         fontWeight: brand === b ? 600 : 400,
                       }}
@@ -290,7 +302,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
             {collections.length > 0 && (
               <div>
-                <div style={{ ...OVERLINE, color: "rgba(251,248,243,.45)" }}>Подборки</div>
+                <div style={{ ...OVERLINE, color: "rgba(251,248,243,.62)" }}>Подборки</div>
                 <div className="mt-2 flex flex-col gap-1.5">
                   {collections.map((col) => {
                     const key = `col:${col.id}`;
@@ -320,10 +332,10 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
             <div className="mt-auto pt-4" style={{ borderTop: "1px solid rgba(251,248,243,.15)" }}>
               <Plaque compact dark />
               <div className="mt-2 flex flex-col gap-1">
-                <a href="/privacy" target="_blank" rel="noopener" className="underline" style={{ fontSize: 11, color: "rgba(251,248,243,.5)" }}>
+                <a href="/privacy" target="_blank" rel="noopener" className="underline" style={{ fontSize: 11, color: "rgba(251,248,243,.62)" }}>
                   Политика конфиденциальности
                 </a>
-                <a href="/terms" target="_blank" rel="noopener" className="underline" style={{ fontSize: 11, color: "rgba(251,248,243,.5)" }}>
+                <a href="/terms" target="_blank" rel="noopener" className="underline" style={{ fontSize: 11, color: "rgba(251,248,243,.62)" }}>
                   Оплата, доставка и возврат
                 </a>
               </div>
@@ -410,7 +422,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
           {screen === "catalog" && (
             <>
               <div
-                className="p-6 sm:p-8 flex flex-wrap items-center gap-6"
+                className="p-5 sm:p-8 flex flex-wrap items-center gap-6"
                 style={{ borderRadius: RADIUS.card, background: C.violet, color: C.surface }}
               >
                 <div style={{ flex: "1 1 320px" }}>
@@ -425,10 +437,10 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     <br />
                     без наценки маркетплейса
                   </h1>
-                  <p className="mt-3 max-w-md" style={{ fontSize: 14, fontWeight: 300, color: "rgba(251,248,243,.85)" }}>
+                  <p className="hidden sm:block mt-3 max-w-md" style={{ fontSize: 14, fontWeight: 300, color: "#FBF8F3" }}>
                     Оставьте заявку — перезвоним, подтвердим наличие и отправим в ваш пункт выдачи. Оплата при получении.
                   </p>
-                  <div className="mt-5 flex gap-3 flex-wrap">
+                  <div className="hidden sm:flex mt-5 gap-3 flex-wrap">
                     <Btn variant="acid" onClick={scrollToGrid}>
                       Смотреть каталог
                     </Btn>
@@ -437,7 +449,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               </div>
 
               <div
-                className="mt-4 p-4 flex flex-wrap gap-x-6 gap-y-2"
+                className="mt-4 p-4 hidden sm:flex flex-wrap gap-x-6 gap-y-2"
                 style={{ borderRadius: RADIUS.block, background: C.peach, color: C.ink }}
               >
                 <span className="flex items-center gap-2" style={{ fontSize: 13, fontWeight: 600 }}>
@@ -508,7 +520,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                           <button
                             onClick={() => toggleFavorite(p.sku)}
                             className="absolute top-2 right-2 flex items-center justify-center"
-                            style={{ width: 32, height: 32, borderRadius: 999, background: "rgba(255,255,255,.85)" }}
+                            style={{ width: 36, height: 36, borderRadius: 999, background: "rgba(255,255,255,.9)" }}
                             aria-label={favorites.includes(p.sku) ? "Убрать из избранного" : "В избранное"}
                           >
                             <Heart
@@ -528,7 +540,6 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                           </Badge>
                         </div>
                         <div className="mt-2">
-                          <TrustBadges hasSgr={Boolean(p.sgr)} compact />
                         </div>
                         <div className="mt-3">
                           {inCart ? (
@@ -543,7 +554,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                                 <button
                                   onClick={() => setQty(p.sku, inCart.qty - 1)}
                                   className="flex items-center justify-center"
-                                  style={{ width: 28, height: 28, borderRadius: 999, background: "rgba(255,255,255,.15)", color: C.surface }}
+                                  style={{ width: 32, height: 32, borderRadius: 999, background: "rgba(255,255,255,.15)", color: C.surface }}
                                   aria-label="Уменьшить количество"
                                 >
                                   −
@@ -552,7 +563,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                                   onClick={() => setQty(p.sku, Math.min(inCart.qty + 1, p.stock))}
                                   disabled={inCart.qty >= p.stock}
                                   className="flex items-center justify-center"
-                                  style={{ width: 28, height: 28, borderRadius: 999, background: C.acid, color: C.ink, opacity: inCart.qty >= p.stock ? 0.4 : 1 }}
+                                  style={{ width: 32, height: 32, borderRadius: 999, background: C.acid, color: C.ink, opacity: inCart.qty >= p.stock ? 0.4 : 1 }}
                                   aria-label="Увеличить количество"
                                 >
                                   +
@@ -581,7 +592,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   <p style={{ fontSize: 14, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
                     БАД. Не является лекарственным средством.
                   </p>
-                  <p className="mt-1" style={{ fontSize: 14, fontWeight: 300, color: "rgba(251,248,243,.85)" }}>
+                  <p className="mt-1" style={{ fontSize: 14, fontWeight: 300, color: "#FBF8F3" }}>
                     Имеются противопоказания. Перед применением необходимо проконсультироваться со специалистом.
                   </p>
                 </div>

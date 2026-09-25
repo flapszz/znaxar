@@ -36,3 +36,11 @@ button:focus-visible {
 .card-elevated:hover {
   transform: translateY(-2px);
 }
+
+input[type="checkbox"] {
+  accent-color: #685bc5;
+}
+::placeholder {
+  color: rgba(0, 39, 82, 0.55);
+  opacity: 1;
+}
