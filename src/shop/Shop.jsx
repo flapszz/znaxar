@@ -589,7 +589,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   className="p-5"
                   style={{ borderRadius: RADIUS.block, background: C.ink, color: C.surface }}
                 >
-                  <p style={{ fontSize: 14, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                  <p style={{ fontSize: 14, fontWeight: 600, letterSpacing: "0.02em" }}>
                     БАД. Не является лекарственным средством.
                   </p>
                   <p className="mt-1" style={{ fontSize: 14, fontWeight: 300, color: "#FBF8F3" }}>

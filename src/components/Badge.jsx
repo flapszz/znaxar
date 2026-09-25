@@ -12,7 +12,7 @@ export function Badge({ children, variant = "neutral" }) {
   return (
     <span
       className="inline-flex items-center px-2.5 py-1"
-      style={{ borderRadius: RADIUS.pill, fontSize: 11, fontWeight: 600, letterSpacing: "0.02em", ...style }}
+      style={{ borderRadius: 6, fontSize: 12, fontWeight: 600, letterSpacing: "0.02em", ...style }}
     >
       {children}
     </span>

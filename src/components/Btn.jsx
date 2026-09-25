@@ -20,7 +20,7 @@ export function Btn({ children, onClick, variant = "solid", disabled, full, type
       className={`transition-all duration-150 ${VARIANT_CLASS[variant] || "btn-solid"} ${full ? "w-full" : ""} ${
         disabled ? "cursor-not-allowed" : ""
       }`}
-      style={{ ...style, borderRadius: RADIUS.pill, padding: "13px 22px", fontWeight: 600, fontSize: 14, border: style.border || "none" }}
+      style={{ ...style, borderRadius: RADIUS.pill, padding: "12px 22px", fontWeight: 600, fontSize: 15, border: style.border || "none" }}
     >
       {children}
     </button>

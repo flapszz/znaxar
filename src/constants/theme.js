@@ -20,18 +20,17 @@ export const INK = {
   12: "rgba(0,39,82,.12)",
 };
 
-export const RADIUS = { pill: 999, card: 24, block: 20, frame: 32, well: 16 };
+export const RADIUS = { pill: 8, card: 14, block: 12, frame: 20, well: 10 };
 export const SHADOW_FRAME = "0 30px 80px rgba(0,39,82,.14)";
 export const CARD_BORDER = `1.5px solid ${INK[18]}`;
 export const DIVIDER = `2px solid ${C.ink}`;
 export const ROW_DIVIDER = `1px solid ${INK[12]}`;
 
-export const HEAD = { fontWeight: 700, letterSpacing: "-0.02em" };
+export const HEAD = { fontFamily: '"Lora", Georgia, serif', fontWeight: 700, letterSpacing: "-0.01em" };
 export const OVERLINE = {
-  fontSize: 11,
-  letterSpacing: "0.12em",
-  textTransform: "uppercase",
-  fontWeight: 500,
+  fontSize: 12,
+  letterSpacing: "0.04em",
+  fontWeight: 600,
   color: INK[45],
 };
 
