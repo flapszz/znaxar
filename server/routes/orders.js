@@ -4,6 +4,12 @@ import { pool } from "../db.js";
 import { requireAdmin } from "./auth.js";
 import { CONSENT } from "../legal.js";
 
+const STATUSES = ["новая", "подтверждена", "собрана", "отправлена", "выдана", "отменена"];
+// После этих статусов товар считается ушедшим со склада — остаток списывается.
+const DEDUCTING = new Set(["подтверждена", "собрана", "отправлена", "выдана"]);
+const CLOSING = new Set(["выдана", "отменена"]);
+const MAX_ITEMS = 30;
+
 export const ordersRouter = Router();
 
 // Не более 15 заявок в час с одного IP — иначе базу можно завалить
@@ -49,6 +55,7 @@ function formatOrder(r) {
     comment: r.comment,
     items: r.items,
     status: r.status,
+    stockDeducted: r.stock_deducted,
     consentGiven: r.consent_given,
     consentAt,
     consentVersion: r.consent_version,
@@ -69,11 +76,58 @@ ordersRouter.post("/", burstLimiter, submitLimiter, async (req, res) => {
     return res.status(201).json({ id: "0" });
   }
 
-  if (!name?.trim() || !phone?.trim() || !city?.trim() || !Array.isArray(items) || items.length === 0) {
+  const cleanName = String(name ?? "").trim();
+  const cleanCity = String(city ?? "").trim();
+  const cleanComment = String(comment ?? "").trim();
+  const phoneDigits = String(phone ?? "").replace(/\D/g, "");
+
+  if (!cleanName || !cleanCity || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: "Заполните все обязательные поля заявки." });
+  }
+  if (phoneDigits.length !== 11 || !/^[78]/.test(phoneDigits)) {
+    return res.status(400).json({ error: "Введите номер телефона полностью." });
+  }
+  if (cleanName.length > 100 || cleanCity.length > 100 || cleanComment.length > 1000) {
+    return res.status(400).json({ error: "Слишком длинный текст в одном из полей." });
   }
   if (consentGiven !== true) {
     return res.status(400).json({ error: "Нужно согласие на обработку персональных данных." });
+  }
+  if (items.length > MAX_ITEMS) {
+    return res.status(400).json({ error: "Слишком много позиций в одной заявке." });
+  }
+
+  // Состав заявки собираем на сервере из того, что реально есть на сайте:
+  // клиенту верим только в артикул и количество, цену и название берём у себя
+  // и фиксируем в заявке — чтобы потом смена цены не меняла старые заявки.
+  const wanted = new Map();
+  for (const it of items) {
+    const sku = String(it?.sku ?? "");
+    const qty = Number(it?.qty);
+    if (!sku || !Number.isInteger(qty) || qty < 1 || qty > 999) {
+      return res.status(400).json({ error: "Некорректный состав заявки." });
+    }
+    wanted.set(sku, (wanted.get(sku) || 0) + qty);
+  }
+  const { rows: found } = await pool.query(
+    `SELECT s.sku, s.price, s.stock, COALESCE(NULLIF(p.title, ''), s.stock_name) AS title
+     FROM stock s JOIN products p ON p.sku = s.sku
+     WHERE s.sku = ANY($1) AND p.published = true`,
+    [[...wanted.keys()]]
+  );
+  const bySku = Object.fromEntries(found.map((r) => [r.sku, r]));
+  const orderItems = [];
+  for (const [sku, qty] of wanted) {
+    const row = bySku[sku];
+    if (!row) {
+      return res.status(400).json({ error: "Одного из товаров уже нет на сайте. Обновите страницу и соберите заявку заново." });
+    }
+    if (qty > row.stock) {
+      return res.status(400).json({
+        error: row.stock > 0 ? `«${row.title}»: осталось только ${row.stock} шт.` : `«${row.title}» закончился.`,
+      });
+    }
+    orderItems.push({ sku, qty, price: row.price, title: row.title });
   }
 
   const { rows } = await pool.query(
@@ -84,31 +138,69 @@ ordersRouter.post("/", burstLimiter, submitLimiter, async (req, res) => {
      VALUES ($1,$2,$3,$4,$5,'ПВЗ уточняется','новая', true, now(), $6,$7,$8,$9)
      RETURNING *`,
     [
-      name.trim(),
-      phone.trim(),
-      city.trim(),
-      (comment || "").trim(),
-      JSON.stringify(items),
+      cleanName,
+      String(phone).trim().slice(0, 30),
+      cleanCity,
+      cleanComment,
+      JSON.stringify(orderItems),
       CONSENT.version,
       CONSENT.hash,
       req.ip,
-      req.get("user-agent") || "",
+      (req.get("user-agent") || "").slice(0, 300),
     ]
   );
 
   res.status(201).json(formatOrder(rows[0]));
 });
 
+// Смена статуса. Остаток на сайте списывается, когда заявка подтверждена, и
+// возвращается, если её вернули в «новую» или отменили — но только один раз,
+// за этим следит флаг stock_deducted.
 ordersRouter.patch("/:id/status", requireAdmin, async (req, res) => {
   const { status } = req.body || {};
-  const { rows } = await pool.query(`UPDATE orders SET status = $1 WHERE id = $2 RETURNING *`, [
-    status,
-    req.params.id,
-  ]);
-  if (!rows[0]) {
-    return res.status(404).json({ error: "Заявка не найдена." });
+  if (!STATUSES.includes(status)) {
+    return res.status(400).json({ error: "Неизвестный статус." });
   }
-  res.json(formatOrder(rows[0]));
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const { rows: cur } = await client.query(`SELECT * FROM orders WHERE id = $1 FOR UPDATE`, [req.params.id]);
+    const order = cur[0];
+    if (!order) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Заявка не найдена." });
+    }
+
+    let deducted = order.stock_deducted;
+    if (DEDUCTING.has(status) && !deducted) {
+      for (const it of order.items) {
+        await client.query(`UPDATE stock SET stock = GREATEST(stock - $1, 0), updated_at = now() WHERE sku = $2`, [
+          it.qty,
+          it.sku,
+        ]);
+      }
+      deducted = true;
+    } else if (!DEDUCTING.has(status) && deducted) {
+      for (const it of order.items) {
+        await client.query(`UPDATE stock SET stock = stock + $1, updated_at = now() WHERE sku = $2`, [it.qty, it.sku]);
+      }
+      deducted = false;
+    }
+
+    const { rows } = await client.query(
+      `UPDATE orders SET status = $1, stock_deducted = $2,
+         closed_at = CASE WHEN $3 THEN COALESCE(closed_at, now()) ELSE NULL END
+       WHERE id = $4 RETURNING *`,
+      [status, deducted, CLOSING.has(status), req.params.id]
+    );
+    await client.query("COMMIT");
+    res.json(formatOrder(rows[0]));
+  } catch (e) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw e;
+  } finally {
+    client.release();
+  }
 });
 
 // Удаление по запросу субъекта ПДн (отзыв согласия) — доступно только владельцу.

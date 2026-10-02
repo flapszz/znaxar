@@ -94,6 +94,19 @@ export default function App() {
     [products]
   );
 
+  // Корзина живёт в sessionStorage и может устареть: товар сняли с сайта, остаток
+  // уменьшился. Убираем такие позиции, чтобы заявка не упала на сервере.
+  useEffect(() => {
+    if (!products) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCart((c) => {
+      const next = c
+        .map((i) => ({ ...i, qty: Math.min(i.qty, bySku[i.sku]?.stock ?? 0) }))
+        .filter((i) => bySku[i.sku]?.published && i.qty > 0);
+      return next.length === c.length && next.every((i, k) => i.qty === c[k].qty) ? c : next;
+    });
+  }, [products, bySku]);
+
   const addToCart = (sku) =>
     setCart((c) => {
       const hit = c.find((i) => i.sku === sku);

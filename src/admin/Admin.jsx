@@ -8,7 +8,7 @@ import { AdminProducts } from "./AdminProducts";
 import { AdminPublications } from "./AdminPublications";
 
 export function Admin({ products, bySku, refreshProducts }) {
-  const [tab, setTab] = useState("products");
+  const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState(null); // null = ещё грузится
 
   const refreshOrders = () =>
@@ -27,13 +27,13 @@ export function Admin({ products, bySku, refreshProducts }) {
     <div className="max-w-5xl mx-auto px-5 py-6">
       <div className="flex flex-wrap gap-1.5 mb-6">
         {[
+          ["orders", newCount > 0 ? `Заявки · ${newCount} новых` : "Заявки"],
           ["products", `Товары (${products.length})`],
           ["categories", "Категории"],
           ["brands", "Бренды"],
           ["collections", "Подборки"],
           ["articles", "Статьи"],
           ["news", "Новости"],
-          ["orders", `Заявки (${newCount} новых)`],
         ].map(([k, label]) => (
           <button
             key={k}
@@ -41,10 +41,11 @@ export function Admin({ products, bySku, refreshProducts }) {
             className="px-3.5 py-1.5 transition-colors"
             style={{
               borderRadius: RADIUS.pill,
-              fontSize: 12,
-              background: tab === k ? C.ink : "transparent",
-              color: tab === k ? C.surface : INK[60],
-              border: `1.5px solid ${tab === k ? C.ink : INK[18]}`,
+              fontSize: 13,
+              background: tab === k ? C.ink : k === "orders" && newCount > 0 ? C.acid : "transparent",
+              color: tab === k ? C.surface : k === "orders" && newCount > 0 ? C.ink : INK[60],
+              fontWeight: k === "orders" && newCount > 0 ? 600 : 400,
+              border: `1.5px solid ${tab === k ? C.ink : k === "orders" && newCount > 0 ? C.acid : INK[18]}`,
             }}
           >
             {label}

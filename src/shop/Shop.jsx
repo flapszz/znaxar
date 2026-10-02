@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Activity, Clock, Heart, Search, Truck, Wallet } from "lucide-react";
 import { Badge } from "../components/Badge";
 import { Btn } from "../components/Btn";
+import { ContactLine } from "../components/ContactLine";
 import { ProductPhoto } from "../components/ProductPhoto";
 import { Plaque } from "../components/Plaque";
 import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, SHADOW_FRAME } from "../constants/theme";
@@ -145,6 +146,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
             <div className="flex items-center gap-2 mb-3">
               <Activity size={20} color={C.acid} strokeWidth={2.25} />
               <span style={{ ...HEAD, fontSize: 18 }}>Знахарь</span>
+              <ContactLine className="ml-auto" />
             </div>
             <label
               className="flex items-center gap-2 px-3.5 py-2 mb-3"
@@ -330,12 +332,13 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
             )}
 
             <div className="mt-auto pt-4" style={{ borderTop: "1px solid rgba(251,248,243,.15)" }}>
+              <ContactLine color={C.surface} className="mb-3" />
               <Plaque compact dark />
               <div className="mt-2 flex flex-col gap-1">
-                <a href="/privacy" target="_blank" rel="noopener" className="underline" style={{ fontSize: 11, color: "rgba(251,248,243,.62)" }}>
+                <a href="/privacy" target="_blank" rel="noopener" className="underline" style={{ fontSize: 12, color: "rgba(251,248,243,.7)" }}>
                   Политика конфиденциальности
                 </a>
-                <a href="/terms" target="_blank" rel="noopener" className="underline" style={{ fontSize: 11, color: "rgba(251,248,243,.62)" }}>
+                <a href="/terms" target="_blank" rel="noopener" className="underline" style={{ fontSize: 12, color: "rgba(251,248,243,.7)" }}>
                   Оплата, доставка и возврат
                 </a>
               </div>
@@ -343,16 +346,16 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
           </aside>
         )}
 
-        <div className="p-5 sm:p-8" style={{ flex: "9999 1 560px", minWidth: 0 }}>
+        <div className={`p-5 sm:p-8 ${count > 0 ? "pb-28" : ""}`} style={{ flex: "9999 1 560px", minWidth: 0 }}>
           {screen === "product" && openSku && (bySku[openSku] ? (
             <ProductDetail
               p={bySku[openSku]}
               related={products.filter((p) => p.sku !== openSku && p.published && p.hasStock).slice(0, 4)}
               onOpen={openProduct}
-              onAdd={() => {
-                addToCart(openSku);
-                backToCatalog();
-              }}
+              onAdd={() => addToCart(openSku)}
+              qtyInCart={cart.find((i) => i.sku === openSku)?.qty || 0}
+              onSetQty={(q) => setQty(openSku, q)}
+              onCheckout={goCheckout}
               onBack={backToCatalog}
               isFavorite={favorites.includes(openSku)}
               onToggleFavorite={() => toggleFavorite(openSku)}
@@ -430,7 +433,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     className="inline-block px-3 py-1 mb-3"
                     style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.15)", fontSize: 11, fontWeight: 600 }}
                   >
-                    {products.filter((p) => p.published && p.hasStock).length} позиций на складе
+                    {products.filter((p) => p.published && p.stock > 0).length} позиций на складе
                   </span>
                   <h1 style={{ ...HEAD, fontSize: "clamp(26px,4.5vw,36px)", lineHeight: 1.15 }}>
                     Добавки со склада,
@@ -512,7 +515,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                       >
                         <div className="relative">
                           <button onClick={() => openProduct(p.sku)} className="text-left w-full">
-                            <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} badge={p.badge} />
+                            <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} badge={p.badge} />
                             <h3 className="mt-3" style={{ ...HEAD, fontSize: 16, color: C.ink }}>
                               {p.title}
                             </h3>
@@ -637,7 +640,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   </a>
                 </div>
 
-                <p className="mt-4" style={{ fontSize: 11, color: INK[45] }}>
+                <p className="mt-4" style={{ fontSize: 12, color: INK[45] }}>
                   © {new Date().getFullYear()} Знахарь
                 </p>
               </footer>
@@ -647,7 +650,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         </div>
       </div>
 
-      {screen === "catalog" && count > 0 && (
+      {(screen === "catalog" || screen === "product") && count > 0 && (
         <div
           className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all`}
           style={{

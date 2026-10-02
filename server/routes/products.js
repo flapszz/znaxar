@@ -1,6 +1,7 @@
 import { Router } from "express";
 import ExcelJS from "exceljs";
 import multer from "multer";
+import sharp from "sharp";
 import { pool } from "../db.js";
 import { requireAdmin } from "./auth.js";
 
@@ -32,6 +33,7 @@ async function loadProducts() {
   const stockSkus = new Set(stockRows.map((s) => s.sku));
   // Метка версии в URL — чтобы браузер не показывал старое фото из кэша после замены.
   const imageUrl = (r) => (r?.has_image ? `/api/products/${r.sku}/photo?v=${new Date(r.updated_at).getTime()}` : null);
+  const thumbUrl = (r) => (r?.has_image ? `${imageUrl(r)}&size=thumb` : null);
 
   const fromStock = stockRows.map((s) => {
     const c = bySku[s.sku];
@@ -50,6 +52,7 @@ async function loadProducts() {
       composition: c?.composition || [],
       published: c?.published || false,
       imageUrl: imageUrl(c),
+      thumbUrl: thumbUrl(c),
       badge: c?.badge || null,
     };
   });
@@ -71,6 +74,7 @@ async function loadProducts() {
       composition: r.composition,
       published: r.published,
       imageUrl: imageUrl(r),
+      thumbUrl: thumbUrl(r),
       badge: r.badge || null,
     }));
 
@@ -82,16 +86,18 @@ productsRouter.get("/", async (req, res) => {
 });
 
 productsRouter.get("/:sku/photo", async (req, res) => {
-  const { rows } = await pool.query("SELECT image_data, image_mimetype FROM products WHERE sku = $1", [
+  const { rows } = await pool.query("SELECT image_data, image_thumb, image_mimetype FROM products WHERE sku = $1", [
     req.params.sku,
   ]);
   const row = rows[0];
-  if (!row?.image_data) {
+  const useThumb = req.query.size === "thumb" && row?.image_thumb;
+  const data = useThumb ? row.image_thumb : row?.image_data;
+  if (!data) {
     return res.status(404).end();
   }
-  res.set("Content-Type", row.image_mimetype);
+  res.set("Content-Type", useThumb ? "image/webp" : row.image_mimetype);
   res.set("Cache-Control", "public, max-age=31536000, immutable");
-  res.send(row.image_data);
+  res.send(data);
 });
 
 productsRouter.put("/:sku", requireAdmin, async (req, res) => {
@@ -160,6 +166,15 @@ productsRouter.put("/:sku", requireAdmin, async (req, res) => {
   res.json(await loadProducts());
 });
 
+// Полное удаление позиции (описание, фото, цена и остаток). Старые заявки не
+// страдают — название и цена фиксируются в самой заявке.
+productsRouter.delete("/:sku", requireAdmin, async (req, res) => {
+  await pool.query("DELETE FROM collection_products WHERE sku = $1", [req.params.sku]).catch(() => {});
+  await pool.query("DELETE FROM products WHERE sku = $1", [req.params.sku]);
+  await pool.query("DELETE FROM stock WHERE sku = $1", [req.params.sku]);
+  res.json(await loadProducts());
+});
+
 productsRouter.post("/:sku/image", requireAdmin, (req, res) => {
   uploadPhoto.single("photo")(req, res, async (err) => {
     if (err) {
@@ -172,19 +187,53 @@ productsRouter.post("/:sku/image", requireAdmin, (req, res) => {
     }
 
     const sku = req.params.sku;
+    // Фото с телефона бывают по 4–5 МБ и 4000 px — сжимаем до 1200 px для страницы
+    // товара и делаем маленькую копию (480 px) для каталога. Поворот по EXIF учитываем.
+    let large, thumb;
+    try {
+      const base = sharp(req.file.buffer).rotate();
+      large = await base.clone().resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true }).webp({ quality: 82 }).toBuffer();
+      thumb = await base.clone().resize({ width: 480, height: 480, fit: "inside", withoutEnlargement: true }).webp({ quality: 78 }).toBuffer();
+    } catch {
+      return res.status(400).json({ error: "Не удалось прочитать картинку — попробуйте другой файл." });
+    }
     await pool.query(
-      `INSERT INTO products (sku, image_data, image_mimetype, updated_at) VALUES ($1, $2, $3, now())
-       ON CONFLICT (sku) DO UPDATE SET image_data = EXCLUDED.image_data, image_mimetype = EXCLUDED.image_mimetype, updated_at = now()`,
-      [sku, req.file.buffer, req.file.mimetype]
+      `INSERT INTO products (sku, image_data, image_thumb, image_mimetype, updated_at) VALUES ($1, $2, $3, 'image/webp', now())
+       ON CONFLICT (sku) DO UPDATE SET image_data = EXCLUDED.image_data, image_thumb = EXCLUDED.image_thumb,
+         image_mimetype = EXCLUDED.image_mimetype, updated_at = now()`,
+      [sku, large, thumb]
     );
 
     res.json({ imageUrl: `/api/products/${sku}/photo?v=${Date.now()}` });
   });
 });
 
-// Массовая загрузка цен из Excel — два столбца: артикул, цена. Строку-заголовок
-// и всё, что не похоже на число, просто пропускаем. Осознанное отступление от
-// исходной архитектуры (см. CLAUDE.md) — цена/остаток теперь ведутся на сайте.
+// Скачать текущие цены и остатки таблицей — владелец правит цифры в Excel и
+// загружает файл обратно. Так артикулы не набираются вручную и опечаток не будет.
+productsRouter.get("/export-prices", requireAdmin, async (req, res) => {
+  const products = await loadProducts();
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Цены и остатки");
+  sheet.columns = [
+    { header: "Артикул", key: "sku", width: 14 },
+    { header: "Цена, ₽", key: "price", width: 12 },
+    { header: "Остаток, шт", key: "stock", width: 14 },
+    { header: "Название (для справки, не загружается)", key: "title", width: 44 },
+  ];
+  sheet.getRow(1).font = { bold: true };
+  for (const p of products.filter((x) => x.hasStock)) {
+    sheet.addRow({ sku: p.sku, price: p.price, stock: p.stock, title: p.title || p.stockName });
+  }
+  res.set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  res.set("Content-Disposition", "attachment; filename*=UTF-8''" + encodeURIComponent("цены-и-остатки.xlsx"));
+  await workbook.xlsx.write(res);
+  res.end();
+});
+
+// Массовая загрузка из Excel: артикул, цена и (необязательно) остаток. Строку-заголовок
+// и всё, что не похоже на число, пропускаем. Новые товары тут не создаются — артикул,
+// которого нет на сайте, попадает в список «не найдено», а не заводит товар-призрак
+// из-за опечатки. Осознанное отступление от исходной архитектуры (см. CLAUDE.md).
 productsRouter.post("/import-prices", requireAdmin, (req, res) => {
   uploadSpreadsheet.single("file")(req, res, async (err) => {
     if (err) {
@@ -206,39 +255,38 @@ productsRouter.post("/import-prices", requireAdmin, (req, res) => {
       return res.status(400).json({ error: "В файле нет ни одного листа." });
     }
 
+    const toNumber = (cell) => {
+      const text = String(cell.value ?? "").replace(",", ".").replace(/[^\d.]/g, "");
+      const n = text === "" ? NaN : Number(text);
+      return Number.isFinite(n) && n >= 0 ? Math.round(n) : null;
+    };
+
     const rows = [];
     sheet.eachRow((row) => {
       const sku = String(row.getCell(1).value ?? "").trim().toUpperCase();
-      const priceText = String(row.getCell(2).value ?? "")
-        .replace(",", ".")
-        .replace(/[^\d.]/g, "");
-      const price = priceText === "" ? NaN : Number(priceText);
-      if (!sku || !Number.isFinite(price) || price < 0) return;
-      rows.push({ sku, price: Math.round(price) });
+      const price = toNumber(row.getCell(2));
+      const stock = toNumber(row.getCell(3));
+      if (!sku || price === null) return;
+      rows.push({ sku, price, stock });
     });
 
     if (rows.length === 0) {
       return res.status(400).json({
-        error: "Не нашли ни одной строки вида «артикул, цена». Первый столбец — артикул, второй — цена.",
+        error: "Не нашли ни одной строки. Первый столбец — артикул, второй — цена, третий (необязательно) — остаток.",
       });
     }
 
     let updated = 0;
-    let created = 0;
-    for (const { sku, price } of rows) {
-      const { rows: existing } = await pool.query("SELECT 1 FROM stock WHERE sku = $1", [sku]);
-      if (existing.length) {
-        await pool.query("UPDATE stock SET price = $1, updated_at = now() WHERE sku = $2", [price, sku]);
-        updated++;
-      } else {
-        await pool.query(
-          "INSERT INTO stock (sku, stock_name, price, stock) VALUES ($1, '', $2, 0)",
-          [sku, price]
-        );
-        created++;
-      }
+    const notFound = [];
+    for (const { sku, price, stock } of rows) {
+      const { rowCount } = await pool.query(
+        "UPDATE stock SET price = $1, stock = COALESCE($2, stock), updated_at = now() WHERE sku = $3",
+        [price, stock, sku]
+      );
+      if (rowCount) updated++;
+      else notFound.push(sku);
     }
 
-    res.json({ updated, created, total: rows.length, products: await loadProducts() });
+    res.json({ updated, notFound, total: rows.length, products: await loadProducts() });
   });
 });

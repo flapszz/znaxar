@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { Heart, Minus, Plus } from "lucide-react";
 import { Badge } from "../components/Badge";
 import { Btn } from "../components/Btn";
 import { ProductPhoto } from "../components/ProductPhoto";
@@ -7,7 +7,7 @@ import { TrustBadges } from "../components/TrustBadges";
 import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, tintForSku } from "../constants/theme";
 import { money } from "../utils/format";
 
-export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavorite, onToggleFavorite }) {
+export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavorite, onToggleFavorite, qtyInCart = 0, onSetQty, onCheckout }) {
   return (
     <div>
       {onBack && (
@@ -28,7 +28,11 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
           </div>
 
           {related.length > 0 && (
-            <div className="flex gap-2 mt-3 flex-wrap">
+            <>
+            <div className="mt-4" style={OVERLINE}>
+              Смотрите также
+            </div>
+            <div className="flex gap-2 mt-2 flex-wrap">
               {related.map((r) => (
                 <button
                   key={r.sku}
@@ -37,10 +41,11 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
                   style={{ borderRadius: RADIUS.well, overflow: "hidden" }}
                   title={r.title}
                 >
-                  <ProductPhoto sku={r.sku} imageUrl={r.imageUrl} alt={r.title} size="sm" />
+                  <ProductPhoto sku={r.sku} imageUrl={r.thumbUrl || r.imageUrl} alt={r.title} size="sm" />
                 </button>
               ))}
             </div>
+            </>
           )}
         </div>
 
@@ -68,10 +73,44 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
 
           <div className="mt-5 flex items-center gap-4 flex-wrap">
             <span style={{ ...HEAD, fontSize: 32, whiteSpace: "nowrap" }}>{money(p.price)}</span>
-            <Btn variant="acid" onClick={onAdd} disabled={!p.stock}>
-              {!p.stock ? "Закончился" : "В корзину"}
-            </Btn>
+            {qtyInCart > 0 && onSetQty ? (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1" style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, padding: 3 }}>
+                  <button
+                    onClick={() => onSetQty(qtyInCart - 1)}
+                    aria-label="Меньше"
+                    className="flex items-center justify-center"
+                    style={{ width: 36, height: 36, borderRadius: RADIUS.pill }}
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <span style={{ minWidth: 28, textAlign: "center", fontWeight: 600 }}>{qtyInCart}</span>
+                  <button
+                    onClick={() => onSetQty(Math.min(qtyInCart + 1, p.stock))}
+                    disabled={qtyInCart >= p.stock}
+                    aria-label="Больше"
+                    className="flex items-center justify-center"
+                    style={{ width: 36, height: 36, borderRadius: RADIUS.pill, background: C.acid, opacity: qtyInCart >= p.stock ? 0.4 : 1 }}
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+                <Btn variant="acid" onClick={onCheckout}>
+                  Оформить заявку
+                </Btn>
+              </div>
+            ) : (
+              <Btn variant="acid" onClick={onAdd} disabled={!p.stock}>
+                {!p.stock ? "Закончился" : "В корзину"}
+              </Btn>
+            )}
           </div>
+          {qtyInCart > 0 && (
+            <p className="mt-2" style={{ fontSize: 13, color: INK[60] }}>
+              В корзине: {qtyInCart} шт
+              {qtyInCart >= p.stock ? " — больше на складе нет" : ""}
+            </p>
+          )}
 
           {p.composition.length > 0 && (
             <div className="mt-6 pt-4" style={{ borderTop: DIVIDER }}>

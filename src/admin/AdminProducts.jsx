@@ -3,12 +3,15 @@ import { Badge } from "../components/Badge";
 import { Btn } from "../components/Btn";
 import { ProductPhoto } from "../components/ProductPhoto";
 import { Pagination } from "../components/Pagination";
-import { C, INK, inputStyle } from "../constants/theme";
+import { C, INK, RADIUS, inputStyle } from "../constants/theme";
 import { EMPTY_CONTENT } from "../data/content";
 import { money } from "../utils/format";
 import { ProductEditor } from "./ProductEditor";
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 12;
+
+const statusOf = (p) => (p.published ? "на сайте" : !p.hasStock ? "нет цены и остатка" : p.title ? "скрыт" : "нет описания");
+const STATUS_FILTERS = ["все", "на сайте", "скрыт", "нет описания", "нет цены и остатка"];
 
 export function AdminProducts({ products, refreshProducts }) {
   const [editing, setEditing] = useState(null);
@@ -16,15 +19,17 @@ export function AdminProducts({ products, refreshProducts }) {
   const [saveError, setSaveError] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("все");
   const [importing, setImporting] = useState(false);
   const [importMessage, setImportMessage] = useState("");
   const [importError, setImportError] = useState("");
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return products;
-    return products.filter((p) => `${p.sku} ${p.title} ${p.stockName || ""}`.toLowerCase().includes(q));
-  }, [products, search]);
+    return products
+      .filter((p) => statusFilter === "все" || statusOf(p) === statusFilter)
+      .filter((p) => !q || `${p.sku} ${p.title} ${p.stockName || ""}`.toLowerCase().includes(q));
+  }, [products, search, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageSafe = Math.min(page, totalPages);
@@ -33,6 +38,18 @@ export function AdminProducts({ products, refreshProducts }) {
   const updateSearch = (value) => {
     setSearch(value);
     setPage(1);
+  };
+
+  const remove = async (sku) => {
+    setSaveError("");
+    try {
+      const res = await fetch(`/api/products/${encodeURIComponent(sku)}`, { method: "DELETE", credentials: "same-origin" });
+      if (!res.ok) throw new Error();
+      await refreshProducts();
+      setEditing(null);
+    } catch {
+      setSaveError("Не удалось удалить товар. Попробуйте ещё раз.");
+    }
   };
 
   const save = async (sku, next) => {
@@ -85,7 +102,10 @@ export function AdminProducts({ products, refreshProducts }) {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Не удалось загрузить файл.");
       await refreshProducts();
-      setImportMessage(`Готово: обновлено ${data.updated}, добавлено новых ${data.created} (из ${data.total} строк).`);
+      const missing = data.notFound?.length
+        ? ` Не нашли на сайте и пропустили: ${data.notFound.slice(0, 8).join(", ")}${data.notFound.length > 8 ? " и ещё " + (data.notFound.length - 8) : ""} — проверьте артикулы.`
+        : "";
+      setImportMessage(`Готово: обновлено ${data.updated} из ${data.total} строк.${missing}`);
     } catch (err) {
       setImportError(err.message || "Не удалось загрузить файл.");
     } finally {
@@ -96,7 +116,7 @@ export function AdminProducts({ products, refreshProducts }) {
   if (editing) {
     const p = products.find((x) => x.sku === editing);
     return (
-      <ProductEditor p={p} onCancel={() => setEditing(null)} onSave={save} onUploadImage={uploadImage} error={saveError} />
+      <ProductEditor p={p} onCancel={() => setEditing(null)} onSave={save} onUploadImage={uploadImage} onDelete={remove} error={saveError} />
     );
   }
 
@@ -118,15 +138,22 @@ export function AdminProducts({ products, refreshProducts }) {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
         <p style={{ fontSize: 13, color: INK[60] }}>
-          Цену и остаток можно обновить сразу у всех — файлом Excel (первый столбец — артикул, второй — цена).
+          Цены и остатки можно обновить сразу у всех: скачайте таблицу, поправьте цифры в Excel и загрузите обратно.
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href="/api/products/export-prices"
+            className="inline-flex items-center px-4 py-2.5"
+            style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, color: C.ink, fontSize: 13 }}
+          >
+            Скачать таблицу
+          </a>
           <label style={{ fontSize: 13 }}>
             <span
               className="inline-flex items-center px-4 py-2.5"
-              style={{ borderRadius: 999, border: `1.5px solid ${INK[18]}`, color: C.ink, cursor: "pointer" }}
+              style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, color: C.ink, cursor: "pointer" }}
             >
-              {importing ? "Загружаем…" : "Загрузить цены (.xlsx)"}
+              {importing ? "Загружаем…" : "Загрузить таблицу"}
             </span>
             <input type="file" accept=".xlsx" onChange={importPrices} disabled={importing} style={{ display: "none" }} />
           </label>
@@ -144,6 +171,31 @@ export function AdminProducts({ products, refreshProducts }) {
           {importError}
         </p>
       )}
+
+      <div className="flex items-center gap-2 overflow-x-auto flex-nowrap pb-2 mb-1">
+        {STATUS_FILTERS.map((f) => {
+          const count = f === "все" ? products.length : products.filter((p) => statusOf(p) === f).length;
+          return (
+            <button
+              key={f}
+              onClick={() => {
+                setStatusFilter(f);
+                setPage(1);
+              }}
+              className="px-3 py-1.5 shrink-0"
+              style={{
+                borderRadius: RADIUS.pill,
+                fontSize: 12,
+                background: statusFilter === f ? C.ink : "transparent",
+                color: statusFilter === f ? C.surface : INK[60],
+                border: `1.5px solid ${statusFilter === f ? C.ink : INK[18]}`,
+              }}
+            >
+              {f} · {count}
+            </button>
+          );
+        })}
+      </div>
 
       <input
         value={search}
@@ -166,18 +218,18 @@ export function AdminProducts({ products, refreshProducts }) {
               style={{ background: C.card, borderTop: i === 0 ? "none" : `1px solid ${INK[12]}` }}
             >
               <div className="w-12 shrink-0">
-                <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} size="sm" />
+                <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} size="sm" />
               </div>
               <div className="flex-1 min-w-0">
                 <div style={{ fontSize: 14 }}>{p.title || p.stockName || p.sku}</div>
                 <div style={{ fontSize: 11, color: INK[60] }}>
-                  {p.hasStock ? `${p.sku} · ${money(p.price)} · остаток ${p.stock}` : `${p.sku} · нет данных склада`}
+                  {p.hasStock ? `${p.sku} · ${money(p.price)} · остаток ${p.stock}` : `${p.sku} · не указаны цена и остаток`}
                 </div>
               </div>
               {p.published ? (
                 <Badge variant="acid">на сайте</Badge>
               ) : !p.hasStock ? (
-                <Badge variant="danger">нет данных склада</Badge>
+                <Badge variant="danger">нет цены и остатка</Badge>
               ) : p.title ? (
                 <Badge variant="neutral">скрыт</Badge>
               ) : (

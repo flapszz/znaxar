@@ -36,6 +36,7 @@ export function ProductPhoto({ sku, imageUrl, alt = "", badge, size = "lg" }) {
         <img
           src={imageUrl}
           alt={alt}
+          loading="lazy"
           style={{
             position: "absolute",
             inset: 0,

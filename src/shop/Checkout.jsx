@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Btn } from "../components/Btn";
+import { ContactLine } from "../components/ContactLine";
 import { Field } from "../components/Field";
 import { ProductPhoto } from "../components/ProductPhoto";
 import { C, HEAD, INK, OVERLINE, RADIUS, inputStyle } from "../constants/theme";
@@ -7,7 +8,8 @@ import { SELLER } from "../data/seller";
 import { money } from "../utils/format";
 import { formatPhoneInput, isValidPhone } from "../utils/phone";
 
-export function Checkout({ cart, bySku, setQty, total, onBack, onSubmit }) {
+export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit }) {
+  const cart = rawCart.filter((i) => bySku[i.sku]);
   const [form, setForm] = useState({ name: "", phone: "", city: "", comment: "" });
   const [consent, setConsent] = useState(false);
   const [attempted, setAttempted] = useState(false);
@@ -44,6 +46,20 @@ export function Checkout({ cart, bySku, setQty, total, onBack, onSubmit }) {
     }
   };
 
+  if (cart.length === 0) {
+    return (
+      <div>
+        <h1 style={{ ...HEAD, fontSize: 24, color: C.ink }}>Корзина пуста</h1>
+        <p className="mt-2 mb-5" style={{ fontSize: 14, color: INK[60] }}>
+          Добавьте товары из каталога, чтобы оставить заявку.
+        </p>
+        <Btn variant="acid" onClick={onBack}>
+          Перейти в каталог
+        </Btn>
+      </div>
+    );
+  }
+
   return (
     <div>
       {onBack && (
@@ -58,6 +74,7 @@ export function Checkout({ cart, bySku, setQty, total, onBack, onSubmit }) {
           <p className="mt-1 mb-6" style={{ fontSize: 14, color: INK[60] }}>
             Оставьте контакты — перезвоним, подтвердим наличие и договоримся о доставке.
           </p>
+          <ContactLine color={INK[72]} className="-mt-3 mb-6" />
 
           {/* honeypot: скрыто от людей стилями, но видно ботам, которые слепо заполняют все поля формы */}
           <input
@@ -157,7 +174,7 @@ export function Checkout({ cart, bySku, setQty, total, onBack, onSubmit }) {
             </Btn>
           </div>
 
-          <p className="mt-3" style={{ fontSize: 11, color: INK[60] }}>
+          <p className="mt-3" style={{ fontSize: 12, color: INK[60] }}>
             Оформляя заявку, вы принимаете условия{" "}
             <a href="/terms" target="_blank" rel="noopener" className="underline" style={{ color: INK[60] }}>
               оплаты, доставки и возврата
@@ -175,20 +192,25 @@ export function Checkout({ cart, bySku, setQty, total, onBack, onSubmit }) {
                 return (
                   <div key={i.sku} className="flex items-center gap-3 py-2.5" style={{ borderTop: `1px solid rgba(251,248,243,.12)` }}>
                     <div className="w-12 shrink-0">
-                      <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} size="sm" />
+                      <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} size="sm" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div style={{ fontSize: 13 }}>{p.title}</div>
                       <div style={{ fontSize: 12, color: "rgba(251,248,243,.72)" }}>{money(p.price)}</div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setQty(i.sku, i.qty - 1)} style={{ color: "rgba(251,248,243,.7)", padding: "0 4px" }}>
-                        −
+                      <button
+                        onClick={() => setQty(i.sku, i.qty - 1)}
+                        aria-label={i.qty === 1 ? "Убрать из заявки" : "Меньше"}
+                        style={{ color: "rgba(251,248,243,.85)", padding: "4px 8px", fontSize: 16 }}
+                      >
+                        {i.qty === 1 ? "✕" : "−"}
                       </button>
                       <span style={{ fontSize: 13 }}>{i.qty}</span>
                       <button
                         onClick={() => setQty(i.sku, Math.min(i.qty + 1, p.stock))}
-                        style={{ color: "rgba(251,248,243,.7)", padding: "0 4px" }}
+                        aria-label="Больше"
+                        style={{ color: "rgba(251,248,243,.85)", padding: "4px 8px", fontSize: 16, opacity: i.qty >= p.stock ? 0.4 : 1 }}
                       >
                         +
                       </button>

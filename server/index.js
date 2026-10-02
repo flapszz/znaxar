@@ -61,6 +61,22 @@ if (isProduction) {
 }
 
 const port = process.env.PORT || 4000;
+// Автоудаление закрытых заявок (выдана/отменена) через N месяцев — 152-ФЗ требует
+// не хранить персональные данные дольше, чем нужно. Выключено, пока не задана
+// переменная ORDER_RETENTION_MONTHS; срок должен совпадать с Политикой на сайте.
+const retentionMonths = Number(process.env.ORDER_RETENTION_MONTHS);
+if (Number.isFinite(retentionMonths) && retentionMonths > 0) {
+  const purge = () =>
+    pool
+      .query(`DELETE FROM orders WHERE closed_at IS NOT NULL AND closed_at < now() - ($1 || ' months')::interval`, [
+        String(retentionMonths),
+      ])
+      .then(({ rowCount }) => rowCount && console.log(`Удалено закрытых заявок старше ${retentionMonths} мес.: ${rowCount}`))
+      .catch((e) => console.error("Не удалось очистить старые заявки:", e.message));
+  purge();
+  setInterval(purge, 24 * 60 * 60 * 1000);
+}
+
 app.listen(port, () => {
   console.log(`API-сервер слушает http://localhost:${port}`);
 });

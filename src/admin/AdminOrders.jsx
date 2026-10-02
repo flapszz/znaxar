@@ -5,7 +5,7 @@ import { C, HEAD, INK, RADIUS, STATUS_VARIANT, inputStyle } from "../constants/t
 import { STATUSES } from "../data/orders";
 import { money } from "../utils/format";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 10;
 
 export function AdminOrders({ orders, refreshOrders, bySku }) {
   const [search, setSearch] = useState("");
@@ -13,6 +13,7 @@ export function AdminOrders({ orders, refreshOrders, bySku }) {
   const [page, setPage] = useState(1);
 
   const move = async (id, status) => {
+    if (status === "отменена" && !window.confirm(`Отменить заявку № ${id}? Если остаток уже был списан, он вернётся на склад.`)) return;
     await fetch(`/api/orders/${id}/status`, {
       method: "PATCH",
       credentials: "same-origin",
@@ -85,7 +86,9 @@ export function AdminOrders({ orders, refreshOrders, bySku }) {
       ) : (
         <div className="grid gap-3">
           {paged.map((o) => {
-            const total = o.items.reduce((s, i) => s + i.qty * (bySku[i.sku]?.price || 0), 0);
+            // Цена берётся из самой заявки (на момент заказа); для старых заявок без неё — текущая.
+            const priceOf = (i) => i.price ?? bySku[i.sku]?.price ?? 0;
+            const total = o.items.reduce((s, i) => s + i.qty * priceOf(i), 0);
             return (
               <div
                 key={o.id}
@@ -100,7 +103,10 @@ export function AdminOrders({ orders, refreshOrders, bySku }) {
                       <span style={{ fontSize: 11, color: INK[60] }}>{o.createdAt}</span>
                     </div>
                     <div className="mt-1" style={{ fontSize: 14 }}>
-                      {o.name} · {o.phone}
+                      {o.name} ·{" "}
+                      <a href={`tel:+${o.phone.replace(/\D/g, "").replace(/^8/, "7")}`} style={{ color: C.violet, fontWeight: 600 }}>
+                        {o.phone}
+                      </a>
                     </div>
                     <div style={{ fontSize: 13, color: INK[60] }}>
                       {o.city} · {o.pickup}
@@ -110,13 +116,18 @@ export function AdminOrders({ orders, refreshOrders, bySku }) {
                         «{o.comment}»
                       </div>
                     )}
-                    <div className="mt-1.5" style={{ fontSize: 11, color: INK[45] }}>
+                    {o.stockDeducted && (
+                      <div className="mt-1.5" style={{ fontSize: 12, color: C.violet, fontWeight: 600 }}>
+                        Остаток на сайте списан
+                      </div>
+                    )}
+                    <div className="mt-1.5" style={{ fontSize: 12, color: INK[45] }}>
                       Согласие на ПДн: {o.consentGiven ? `есть, ${o.consentAt} (${o.consentVersion})` : "нет"}
                     </div>
                   </div>
                   <div className="text-right">
                     <div style={{ ...HEAD, fontSize: 18, whiteSpace: "nowrap" }}>{money(total)}</div>
-                    <div style={{ fontSize: 11, color: INK[60] }}>оплата при получении</div>
+                    <div style={{ fontSize: 12, color: INK[60] }}>оплата при получении</div>
                   </div>
                 </div>
 
@@ -124,25 +135,25 @@ export function AdminOrders({ orders, refreshOrders, bySku }) {
                   {o.items.map((i) => (
                     <div key={i.sku} className="flex justify-between" style={{ fontSize: 12 }}>
                       <span>
-                        {i.sku} · {bySku[i.sku]?.title || "—"}
+                        {i.sku} · {i.title || bySku[i.sku]?.title || "товар удалён"}
                       </span>
-                      <span>× {i.qty}</span>
+                      <span>
+                        {i.qty} × {money(priceOf(i))}
+                      </span>
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <span style={{ fontSize: 10, color: INK[60], textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                    Статус
-                  </span>
+                  <span style={{ fontSize: 12, color: INK[60] }}>Статус:</span>
                   {STATUSES.map((s) => (
                     <button
                       key={s}
                       onClick={() => move(o.id, s)}
-                      className="px-2.5 py-1 transition-colors"
+                      className="px-3 py-1.5 transition-colors"
                       style={{
                         borderRadius: RADIUS.pill,
-                        fontSize: 11,
+                        fontSize: 12,
                         background: o.status === s ? C.violet : "transparent",
                         color: o.status === s ? C.surface : INK[60],
                         border: `1.5px solid ${o.status === s ? C.violet : INK[18]}`,
@@ -155,8 +166,8 @@ export function AdminOrders({ orders, refreshOrders, bySku }) {
                   <span className="ml-auto" style={{ fontSize: 11, color: INK[45] }}>
                     Оформить в СДЭК — позже
                   </span>
-                  <button onClick={() => removeOrder(o.id)} style={{ fontSize: 11, color: C.danger }}>
-                    Удалить данные
+                  <button onClick={() => removeOrder(o.id)} style={{ fontSize: 12, color: C.danger }}>
+                    Удалить заявку
                   </button>
                 </div>
               </div>

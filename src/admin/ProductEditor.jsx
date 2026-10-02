@@ -6,7 +6,7 @@ import { PRODUCT_BADGES } from "../constants/catalog";
 import { C, INK, inputStyle } from "../constants/theme";
 import { ProductDetail } from "../shop/ProductDetail";
 
-export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, onSave, onUploadImage, error }) {
+export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, onSave, onUploadImage, onDelete, error }) {
   const isNew = mode === "create";
 
   const [categories, setCategories] = useState([]);
@@ -331,6 +331,20 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
           <Btn variant="ghost" onClick={onCancel}>
             Отмена
           </Btn>
+          {!isNew && onDelete && (
+            <button
+              type="button"
+              className="ml-auto px-3"
+              style={{ fontSize: 13, color: C.danger }}
+              onClick={() => {
+                if (window.confirm("Удалить товар вместе с фото, ценой и остатком? Старые заявки не пострадают. Если просто нужно убрать с сайта — снимите «Показывать на сайте».")) {
+                  onDelete(p.sku);
+                }
+              }}
+            >
+              Удалить товар
+            </button>
+          )}
         </div>
       </div>
 
