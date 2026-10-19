@@ -389,7 +389,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
           </aside>
         )}
 
-        <div id="catalog" role="main" key={screen + (openSku || "")} className={`screen-in p-5 sm:p-8 ${count > 0 && screen === "catalog" ? "pb-28" : ""}`} style={{ flex: "9999 1 560px", minWidth: 0 }}>
+        <div id="catalog" role="main" key={screen + (openSku || "")} className="screen-in p-5 sm:p-8" style={{ flex: "9999 1 560px", minWidth: 0 }}>
           {screen !== "catalog" && (
             <div className="flex items-center justify-between gap-3 mb-6 pb-4" style={{ borderBottom: `1px solid ${INK[12]}` }}>
               <button onClick={backToCatalog} className="flex items-center gap-2" aria-label="Знахарь — на главную">
@@ -797,31 +797,32 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   © {new Date().getFullYear()} Знахарь
                 </p>
               </footer>
+
+              {/* Панель корзины живёт внутри колонки каталога: не заходит под боковое меню и не сливается с ним. */}
+              {count > 0 && (
+                <div
+                  className="sticky mt-6 px-5 py-3.5 flex items-center justify-between gap-3 transition-all anim-slide-up on-dark floating"
+                  style={{
+                    bottom: `calc(${cookieBannerVisible ? 76 : 16}px + env(safe-area-inset-bottom, 0px))`,
+                    background: C.ink,
+                    color: C.surface,
+                    borderRadius: RADIUS.pill,
+                    boxShadow: SHADOW_FRAME,
+                  }}
+                >
+                  <span key={`${count}-${total}`} className="anim-bump" style={{ fontSize: 13 }}>
+                    {count} поз. · {money(total)}
+                  </span>
+                  <Btn variant="acid" onClick={goCheckout}>
+                    Оформить заявку
+                  </Btn>
+                </div>
+              )}
             </>
           )}
         </div>
         </div>
       </div>
-
-      {screen === "catalog" && count > 0 && (
-        <div
-          className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all anim-slide-up on-dark floating`}
-          style={{
-            bottom: `calc(${cookieBannerVisible ? 76 : 16}px + env(safe-area-inset-bottom, 0px))`,
-            background: C.ink,
-            color: C.surface,
-            borderRadius: RADIUS.pill,
-            boxShadow: SHADOW_FRAME,
-          }}
-        >
-          <span key={`${count}-${total}`} className="anim-bump" style={{ fontSize: 13 }}>
-            {count} поз. · {money(total)}
-          </span>
-          <Btn variant="acid" onClick={goCheckout}>
-            Оформить заявку
-          </Btn>
-        </div>
-      )}
     </div>
   );
 }
