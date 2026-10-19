@@ -435,7 +435,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   className="anim-grow"
                   style={{ width: 96, height: "auto", "--d": "100ms" }}
                 />
-                <h1 className="mt-3 anim-rise" style={{ ...HEAD, fontSize: "clamp(28px,5vw,42px)", color: C.ink, "--d": "450ms" }}>
+                <h1 className="mt-3 anim-type" style={{ ...HEAD, fontSize: "clamp(28px,5vw,42px)", color: C.ink, "--d": "450ms" }}>
                   Заявка № {doneId} принята
                 </h1>
                 <p className="mt-3 max-w-sm anim-rise" style={{ fontSize: 15, color: INK[60], "--d": "560ms" }}>
@@ -469,7 +469,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
             <>
               <section className="flex items-center justify-between gap-8">
                 <div className="flex-1 min-w-0">
-                  <h1 style={{ ...HEAD, fontSize: "clamp(30px,5vw,50px)", lineHeight: 1.08, color: C.ink }}>
+                  <h1 className="anim-type" style={{ ...HEAD, fontSize: "clamp(30px,5vw,50px)", lineHeight: 1.08, color: C.ink }}>
                     БАДы со склада
                     <br />
                     по низким ценам
