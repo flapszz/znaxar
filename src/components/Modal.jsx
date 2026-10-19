@@ -8,7 +8,7 @@ export function Modal({ children, onClose }) {
       onClick={onClose}
     >
       <div
-        className="p-6 w-full max-w-2xl my-8"
+        className="floating p-6 w-full max-w-2xl my-8"
         style={{ background: C.surface, borderRadius: RADIUS.block, boxShadow: SHADOW_FRAME }}
         onClick={(e) => e.stopPropagation()}
       >

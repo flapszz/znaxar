@@ -1,0 +1,335 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T18:54:24.783310+00:00",
+  "title": "Design System: Знахарь",
+  "extensions": {
+    "colorMeta": {
+      "ink-black": {
+        "role": "neutral",
+        "displayName": "Тушь",
+        "canonical": "#0A0A0A",
+        "tonalRamp": [
+          "#262626",
+          "#434343",
+          "#616161",
+          "#7E7E7E",
+          "#9B9B9B",
+          "#B8B8B8",
+          "#D5D5D5",
+          "#F2F2F2"
+        ]
+      },
+      "paper-grey": {
+        "role": "neutral",
+        "displayName": "Серая бумага",
+        "canonical": "#F0F0F0",
+        "tonalRamp": [
+          "#262626",
+          "#434343",
+          "#616161",
+          "#7E7E7E",
+          "#9B9B9B",
+          "#B8B8B8",
+          "#D5D5D5",
+          "#F2F2F2"
+        ]
+      },
+      "sheet-white": {
+        "role": "neutral",
+        "displayName": "Белый лист",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#262626",
+          "#434343",
+          "#616161",
+          "#7E7E7E",
+          "#9B9B9B",
+          "#B8B8B8",
+          "#D5D5D5",
+          "#F2F2F2"
+        ]
+      },
+      "blueprint-blue": {
+        "role": "primary",
+        "displayName": "Синий чертёж",
+        "canonical": "#0B3D91",
+        "tonalRamp": [
+          "#051E47",
+          "#0A357D",
+          "#0E4BB3",
+          "#1262EA",
+          "#4585F1",
+          "#7BA8F5",
+          "#B1CCF9",
+          "#E7EFFD"
+        ]
+      },
+      "blueprint-blue-deep": {
+        "role": "primary",
+        "displayName": "Глубокий синий чертёж",
+        "canonical": "#082C6B",
+        "tonalRamp": [
+          "#051D47",
+          "#09347D",
+          "#0D4AB4",
+          "#1160EA",
+          "#4583F1",
+          "#7BA7F5",
+          "#B1CBF9",
+          "#E7EFFD"
+        ]
+      },
+      "drafting-light-blue": {
+        "role": "primary",
+        "displayName": "Чертёжный голубой",
+        "canonical": "#CFE0FF",
+        "tonalRamp": [
+          "#001B4C",
+          "#003087",
+          "#0044C1",
+          "#0059FB",
+          "#377EFF",
+          "#71A3FF",
+          "#ABC9FF",
+          "#E5EFFF"
+        ]
+      },
+      "sale-red": {
+        "role": "secondary",
+        "displayName": "Красный сигнал",
+        "canonical": "#C8321E",
+        "tonalRamp": [
+          "#43110A",
+          "#751D12",
+          "#A82A19",
+          "#DB3721",
+          "#E56251",
+          "#EC9083",
+          "#F4BDB6",
+          "#FCEBE9"
+        ]
+      },
+      "error-red": {
+        "role": "neutral",
+        "displayName": "Красный ошибки",
+        "canonical": "#B3261E",
+        "tonalRamp": [
+          "#420E0B",
+          "#731913",
+          "#A5231C",
+          "#D72E24",
+          "#E25B53",
+          "#EB8B85",
+          "#F3BAB7",
+          "#FBEAE9"
+        ]
+      },
+      "stock-green": {
+        "role": "neutral",
+        "displayName": "Зелёный наличия",
+        "canonical": "#2E9E5B",
+        "tonalRamp": [
+          "#113B22",
+          "#1E683C",
+          "#2C9656",
+          "#39C370",
+          "#64D290",
+          "#91DFB0",
+          "#BEECD1",
+          "#EBF9F1"
+        ]
+      },
+      "stock-amber": {
+        "role": "neutral",
+        "displayName": "Янтарный «Заканчивается»",
+        "canonical": "#E0A100",
+        "tonalRamp": [
+          "#4C3700",
+          "#876100",
+          "#C18B00",
+          "#FBB500",
+          "#FFC737",
+          "#FFD771",
+          "#FFE7AB",
+          "#FFF8E5"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Заголовок первого экрана и экрана «Заявка принята»."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Название товара, заголовок заявки."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Заголовки разделов каталога."
+      },
+      "price": {
+        "displayName": "Price",
+        "purpose": "Цена на карточке и странице товара, моноширинное начертание 700."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Описания и подсказки."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Кнопки, фильтры, пункты боковой панели."
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating",
+        "value": "0 8px 24px rgba(10,10,10,0.18)",
+        "purpose": "Только у плавающих элементов: уведомление, окно, панель корзины."
+      }
+    ],
+    "motion": [
+      {
+        "name": "step-reveal",
+        "value": "steps(10, end) 380ms",
+        "purpose": "Карточки и рисунки появляются «развёрткой» сверху вниз."
+      },
+      {
+        "name": "step-wipe",
+        "value": "steps(22, end) 520ms",
+        "purpose": "Заголовок проявляется слева направо."
+      },
+      {
+        "name": "flash",
+        "value": "steps(2, end) 200ms",
+        "purpose": "Вспышка голубым при изменении числа в корзине."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Главная кнопка",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Главное действие экрана: «В корзину», «Найти», «Оформить заявку».",
+      "html": "<button class=\"ds-btn-primary\">В корзину</button>",
+      "css": ".ds-btn-primary{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:12px 22px;border-radius:0;cursor:pointer;transition:transform 120ms ease-out,background 120ms;background:#CFE0FF;color:#0A0A0A;border:none} .ds-btn-primary:hover{filter:brightness(.95)} .ds-btn-primary:active{transform:translate(1px,1px)} .ds-btn-primary:focus-visible{outline:2px solid #0B3D91;outline-offset:2px}"
+    },
+    {
+      "name": "Вторичная кнопка",
+      "kind": "button",
+      "refersTo": "button-solid",
+      "description": "Второстепенное действие, активное состояние в админке.",
+      "html": "<button class=\"ds-btn-solid\">Подтвердить заявку</button>",
+      "css": ".ds-btn-solid{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:12px 22px;border-radius:0;cursor:pointer;transition:transform 120ms ease-out,background 120ms;background:#0B3D91;color:#fff;border:none} .ds-btn-solid:hover{background:#082C6B} .ds-btn-solid:focus-visible{outline:2px solid #0B3D91;outline-offset:2px}"
+    },
+    {
+      "name": "Кнопка с рамкой",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Нейтральное действие: «Позвонить», «Скачать таблицу цен».",
+      "html": "<button class=\"ds-btn-outline\">Позвонить</button>",
+      "css": ".ds-btn-outline{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:12px 22px;border-radius:0;cursor:pointer;transition:transform 120ms ease-out,background 120ms;background:transparent;color:#0A0A0A;border:1.5px solid rgba(10,10,10,.18)} .ds-btn-outline:hover{background:rgba(10,10,10,.05)} .ds-btn-outline:focus-visible{outline:2px solid #0B3D91;outline-offset:2px}"
+    },
+    {
+      "name": "Чип фильтра",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Сортировка и фильтры каталога; выбранный залит тушью.",
+      "html": "<span class=\"ds-chip\">дешевле</span> <span class=\"ds-chip ds-chip-on\">популярные</span>",
+      "css": ".ds-chip{display:inline-block;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;padding:8px 14px;border:1.5px solid rgba(10,10,10,.18);color:#0A0A0A;margin-right:6px} .ds-chip-on{background:#0A0A0A;color:#fff;border-color:#0A0A0A;font-weight:600}"
+    },
+    {
+      "name": "Карточка товара",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Плитка товара: рисунок, название, цена, статус наличия, кнопка.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-photo\"></div><div class=\"ds-card-title\">Цинк пиколинат</div><div class=\"ds-card-price\">620 ₽</div><div class=\"ds-card-status\"><i></i>В наличии</div></div>",
+      "css": ".ds-card{width:220px;background:#fff;border:1px solid #0A0A0A;padding:16px;font-family:'JetBrains Mono',ui-monospace,monospace;color:#0A0A0A} .ds-card:hover{outline:2px solid #0A0A0A;outline-offset:-1px} .ds-card-photo{height:120px;background:#EDEFF3;margin-bottom:12px} .ds-card-title{font-size:14px;font-weight:700;text-transform:uppercase} .ds-card-price{font-size:26px;font-weight:700;margin-top:10px} .ds-card-status{font-size:12.5px;display:flex;align-items:center;gap:6px;margin-top:4px;color:rgba(10,10,10,.72)} .ds-card-status i{width:8px;height:8px;background:#2E9E5B;display:inline-block}"
+    },
+    {
+      "name": "Поле ввода",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Поиск, имя, телефон, город.",
+      "html": "<input class=\"ds-input\" placeholder=\"Что ищете? Например, магний или сон\">",
+      "css": ".ds-input{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:14px;width:320px;padding:10px 16px;background:#fff;color:#0A0A0A;border:1.5px solid rgba(10,10,10,.18);border-radius:0} .ds-input::placeholder{color:rgba(10,10,10,.68)} .ds-input:focus{outline:2px solid #0B3D91;outline-offset:2px}"
+    },
+    {
+      "name": "Пункт боковой панели",
+      "kind": "nav",
+      "refersTo": "button-primary",
+      "description": "Категории и бренды на чёрной панели; выбранный залит голубым.",
+      "html": "<div class=\"ds-nav\"><div class=\"ds-nav-item ds-nav-on\">Все</div><div class=\"ds-nav-item\">Витамины</div></div>",
+      "css": ".ds-nav{width:220px;background:#0A0A0A;padding:12px} .ds-nav-item{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:#FBF8F3;padding:8px 12px} .ds-nav-on{background:#CFE0FF;color:#0A0A0A;font-weight:600}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Складской каталог",
+    "overview": "Сайт выглядит как точный каталог со склада: чёрная тушь на белой бумаге, чертёжные рисунки упаковки, цифры и наличие на виду. Оформление ничего не украшает и ничего не обещает.",
+    "keyCharacteristics": [
+      "Чёрный и белый, один холодный акцент: голубой на действиях.",
+      "Прямые углы везде, тонкие рамки вместо теней.",
+      "Моноширинный шрифт JetBrains Mono, заглавные в заголовках, кнопках и фильтрах.",
+      "Рисунки упаковки в виде чертежей, пока нет настоящих фото.",
+      "Дисклеймер БАД всегда виден на первом экране."
+    ],
+    "rules": [
+      {
+        "name": "The One Action Color Rule",
+        "body": "Голубой используется только для действия или выбора.",
+        "section": "colors"
+      },
+      {
+        "name": "The Status Colors Rule",
+        "body": "Зелёный, янтарный и красный означают только наличие товара и результат шага.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Price Rule",
+        "body": "Цены всегда моноширинным начертанием 700 на отдельной строке.",
+        "section": "typography"
+      },
+      {
+        "name": "The Readable Admin Rule",
+        "body": "В админке нет заглавных и моноширинного шрифта.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "В покое тени нет ни у одного элемента; мягкая тень только у плавающих.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do показывать цену, наличие и дисклеймер там, где человек принимает решение.",
+      "Do использовать голубой только для действий и выбора.",
+      "Do выравнивать цену и статус в карточках по одной линии.",
+      "Do менять цвет, шрифт и скругления только через темы в src/constants/themes.js.",
+      "Do показывать реальное фото упаковки, когда оно есть; без фото — чертёж категории.",
+      "Do уважать «уменьшение движения»."
+    ],
+    "donts": [
+      "Don't использовать людей и медицинские образы.",
+      "Don't делать градиенты, свечения и скруглённые рамки.",
+      "Don't использовать эмодзи и стоковые фото.",
+      "Don't добавлять непроверяемые обещания в оформление.",
+      "Don't красить фон и акценты цветами статуса наличия.",
+      "Don't показывать остаток в штуках на витрине."
+    ]
+  }
+}

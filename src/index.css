@@ -325,3 +325,9 @@ h3 {
 .skip-link:focus {
   top: 8px;
 }
+
+/* Всплывающие элементы (уведомление, окно, панель корзины) — единственное место для мягкой тени
+   в стиле «Индекс» (см. DESIGN.md → Elevation & Depth). */
+[data-theme="index"] .floating {
+  box-shadow: 0 8px 24px rgba(10, 10, 10, 0.18) !important;
+}

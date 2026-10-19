@@ -805,7 +805,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
       {screen === "catalog" && count > 0 && (
         <div
-          className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all anim-slide-up on-dark`}
+          className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all anim-slide-up on-dark floating`}
           style={{
             bottom: `calc(${cookieBannerVisible ? 76 : 16}px + env(safe-area-inset-bottom, 0px))`,
             background: C.ink,
