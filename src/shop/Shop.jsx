@@ -483,13 +483,13 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   </Btn>
                 </div>
               </div>
-              <div className="p-5" style={{ flex: "1 1 260px", background: C.ink, color: C.surface, borderRadius: RADIUS.card }}>
+              <div className="p-5" style={{ flex: "1 1 260px", background: C.card, color: C.ink, border: `1.5px solid ${C.ink}`, borderRadius: RADIUS.card }}>
                 {["Перезвоним в рабочее время", "Подтвердим наличие и пункт выдачи", "Соберём и передадим в СДЭК", "Пришлём трек-номер"].map(
                   (step, i) => (
                     <div key={step} className="flex items-start gap-3 py-2 anim-rise" style={{ "--d": `${700 + i * 140}ms` }}>
                       <span
                         className="flex items-center justify-center shrink-0"
-                        style={{ width: 22, height: 22, borderRadius: 999, background: C.acid, color: C.ink, fontSize: 12, fontWeight: 700 }}
+                        style={{ width: 22, height: 22, borderRadius: 999, background: C.acid, color: C.ink, border: `1px solid ${C.ink}`, fontSize: 12, fontWeight: 700 }}
                       >
                         {i + 1}
                       </span>

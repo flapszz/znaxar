@@ -187,25 +187,25 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
         </div>
 
         <div className="order-1 min-[700px]:order-2" style={{ flex: "1 1 280px", minWidth: 0 }}>
-          <div className="p-5" style={{ background: C.ink, borderRadius: RADIUS.card, color: C.surface }}>
-            <div style={{ ...OVERLINE, color: "rgba(251,248,243,.62)" }}>Ваша заявка</div>
+          <div className="p-5" style={{ background: C.card, border: `1.5px solid ${C.ink}`, borderRadius: RADIUS.card, color: C.ink }}>
+            <div style={{ ...OVERLINE, color: INK[72] }}>Ваша заявка</div>
             <div className="mt-3">
               {cart.map((i) => {
                 const p = bySku[i.sku];
                 return (
-                  <div key={i.sku} className="flex items-center gap-3 py-2.5" style={{ borderTop: `1px solid rgba(251,248,243,.12)` }}>
+                  <div key={i.sku} className="flex items-center gap-3 py-2.5" style={{ borderTop: `1px solid ${INK[18]}` }}>
                     <div className="w-12 shrink-0">
                       <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} size="sm" category={p.category} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div style={{ fontSize: 13 }}>{p.title}</div>
-                      <div style={{ fontSize: 12, color: "rgba(251,248,243,.72)" }}>{money(p.price)}</div>
+                      <div style={{ fontSize: 12, color: INK[72] }}>{money(p.price)}</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setQty(i.sku, i.qty - 1)}
                         aria-label={i.qty === 1 ? "Убрать из заявки" : "Меньше"}
-                        style={{ color: "rgba(251,248,243,.85)", padding: "4px 8px", fontSize: 16 }}
+                        style={{ color: C.ink, padding: "4px 8px", fontSize: 16 }}
                       >
                         {i.qty === 1 ? "✕" : "−"}
                       </button>
@@ -213,7 +213,7 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
                       <button
                         onClick={() => setQty(i.sku, Math.min(i.qty + 1, p.stock))}
                         aria-label="Больше"
-                        style={{ color: "rgba(251,248,243,.85)", padding: "4px 8px", fontSize: 16, opacity: i.qty >= p.stock ? 0.4 : 1 }}
+                        style={{ color: C.ink, padding: "4px 8px", fontSize: 16, opacity: i.qty >= p.stock ? 0.4 : 1 }}
                       >
                         +
                       </button>
@@ -222,7 +222,7 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
                 );
               })}
             </div>
-            <div className="flex justify-between pt-3 mt-1" style={{ borderTop: "2px solid rgba(251,248,243,.3)", fontWeight: 700 }}>
+            <div className="flex justify-between pt-3 mt-1" style={{ borderTop: `2px solid ${C.ink}`, fontWeight: 700 }}>
               <span style={{ fontSize: 15 }}>Итого</span>
               <span style={{ fontSize: 20, whiteSpace: "nowrap" }}>{money(total)}</span>
             </div>
