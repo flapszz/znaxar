@@ -5,7 +5,7 @@ import { ProductPhoto } from "../components/ProductPhoto";
 import { Plaque } from "../components/Plaque";
 import { TrustBadges } from "../components/TrustBadges";
 import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, tintForSku } from "../constants/theme";
-import { money } from "../utils/format";
+import { STOCK_LABEL, money, stockState } from "../utils/format";
 
 export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavorite, onToggleFavorite, qtyInCart = 0, onSetQty, onCheckout }) {
   return (
@@ -27,26 +27,6 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
             </div>
           </div>
 
-          {related.length > 0 && (
-            <>
-            <div className="mt-4" style={OVERLINE}>
-              Смотрите также
-            </div>
-            <div className="flex gap-2 mt-2 flex-wrap">
-              {related.map((r) => (
-                <button
-                  key={r.sku}
-                  onClick={() => onOpen && onOpen(r.sku)}
-                  className="w-16 shrink-0"
-                  style={{ borderRadius: RADIUS.well, overflow: "hidden" }}
-                  title={r.title}
-                >
-                  <ProductPhoto sku={r.sku} imageUrl={r.thumbUrl || r.imageUrl} alt={r.title} size="sm" />
-                </button>
-              ))}
-            </div>
-            </>
-          )}
         </div>
 
         <div style={{ flex: "1 1 360px", minWidth: 0 }}>
@@ -72,7 +52,11 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
           </p>
 
           <div className="mt-5 flex items-center gap-4 flex-wrap">
-            <span style={{ ...HEAD, fontSize: 32, whiteSpace: "nowrap" }}>{money(p.price)}</span>
+            <span style={{ ...HEAD, fontSize: 34, whiteSpace: "nowrap" }}>{money(p.price)}</span>
+            <Badge variant={stockState(p.stock) === "out" ? "danger" : stockState(p.stock) === "low" ? "acid" : "neutral"}>
+              {STOCK_LABEL[stockState(p.stock)]}
+              {p.stock > 0 && p.stock <= 10 ? `, ${p.stock} шт` : ""}
+            </Badge>
             {qtyInCart > 0 && onSetQty ? (
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1" style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, padding: 3 }}>
@@ -105,6 +89,9 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
               </Btn>
             )}
           </div>
+          <p className="mt-3" style={{ fontSize: 13, fontWeight: 600, color: C.ink }}>
+            БАД. Не является лекарственным средством.
+          </p>
           {qtyInCart > 0 && (
             <p className="mt-2" style={{ fontSize: 13, color: INK[60] }}>
               В корзине: {qtyInCart} шт
@@ -149,11 +136,25 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
             <TrustBadges hasSgr={Boolean(p.sgr)} />
           </div>
 
-          <div className="mt-4 p-3" style={{ borderRadius: RADIUS.block, background: C.ink }}>
-            <Plaque compact dark />
-          </div>
         </div>
       </div>
+
+      {related.length > 0 && (
+        <section className="mt-12 pt-6" style={{ borderTop: DIVIDER }}>
+          <h2 style={{ ...HEAD, fontSize: 20, color: C.ink }}>Другие товары</h2>
+          <div className="mt-4 grid gap-4 grid-cols-2 sm:grid-cols-4">
+            {related.map((r) => (
+              <button key={r.sku} onClick={() => onOpen && onOpen(r.sku)} className="text-left" title={r.title}>
+                <ProductPhoto sku={r.sku} imageUrl={r.thumbUrl || r.imageUrl} alt={r.title} size="sm" />
+                <div className="mt-2" style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>
+                  {r.title}
+                </div>
+                <div style={{ ...HEAD, fontSize: 16 }}>{money(r.price)}</div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

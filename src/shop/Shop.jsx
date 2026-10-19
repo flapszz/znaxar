@@ -143,7 +143,6 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
     window.history.pushState({}, "", "/");
   };
   const scrollToGrid = () => {
-    setCat("Все");
     gridRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -176,7 +175,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
             <div className="flex items-center gap-2 overflow-x-auto flex-nowrap pb-1" style={{ scrollbarWidth: "none" }}>
               <button
                 onClick={() => setShowFavorites(!showFavorites)}
-                className="px-3.5 py-1.5 shrink-0 flex items-center gap-1.5"
+                className="px-4 py-2.5 shrink-0 flex items-center gap-1.5"
                 style={{
                   borderRadius: RADIUS.pill,
                   background: showFavorites ? C.acid : C.violetDk,
@@ -191,7 +190,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 <button
                   key={c}
                   onClick={() => setCat(c)}
-                  className="px-3.5 py-1.5 shrink-0"
+                  className="px-4 py-2.5 shrink-0"
                   style={{
                     borderRadius: RADIUS.pill,
                     background: cat === c ? C.acid : C.violetDk,
@@ -359,6 +358,24 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         )}
 
         <div className={`p-5 sm:p-8 ${count > 0 ? "pb-28" : ""}`} style={{ flex: "9999 1 560px", minWidth: 0 }}>
+          {screen !== "catalog" && (
+            <div className="flex items-center justify-between gap-3 mb-6 pb-4" style={{ borderBottom: `1px solid ${INK[12]}` }}>
+              <button onClick={backToCatalog} className="flex items-center gap-2" aria-label="Знахарь — на главную">
+                <Activity size={20} color={C.violet} strokeWidth={2.25} />
+                <span style={{ ...HEAD, fontSize: 19, color: C.ink }}>Знахарь</span>
+              </button>
+              {count > 0 && screen !== "checkout" && (
+                <button
+                  onClick={goCheckout}
+                  className="hidden sm:flex px-4 py-2 items-center gap-2"
+                  style={{ borderRadius: RADIUS.pill, background: C.ink, color: C.surface, fontSize: 13, fontWeight: 600 }}
+                >
+                  Корзина · {count} · {money(total)}
+                </button>
+              )}
+            </div>
+          )}
+
           {screen === "product" && openSku && (bySku[openSku] ? (
             <ProductDetail
               p={bySku[openSku]}
@@ -525,10 +542,10 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     <button
                       key={s}
                       onClick={() => setSort(s)}
-                      className="px-3 py-1.5 transition-colors"
+                      className="px-3.5 py-2 transition-colors"
                       style={{
                         borderRadius: RADIUS.pill,
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: sort === s ? 600 : 400,
                         background: sort === s ? C.ink : "transparent",
                         color: sort === s ? C.surface : INK[60],
@@ -539,8 +556,24 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     </button>
                   ))}
                 </div>
+                {brands.length > 0 && (
+                  <select
+                    value={brand}
+                    onChange={(e) => setBrand(e.target.value)}
+                    aria-label="Бренд"
+                    className="sm:hidden px-3 py-2"
+                    style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, background: C.surface, fontSize: 13, color: C.ink }}
+                  >
+                    <option value="Все">Все бренды</option>
+                    {brands.map((b) => (
+                      <option key={b.name} value={b.name}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 <label className="flex items-center gap-2 ml-auto" style={{ fontSize: 13, color: C.ink }}>
-                  <input type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} />
+                  <input type="checkbox" className="w-5 h-5" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} />
                   только в наличии
                 </label>
               </div>
@@ -550,7 +583,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   Ничего не нашлось. Попробуйте другую категорию.
                 </div>
               ) : (
-                <div className="mt-5 grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+                <div className="mt-5 grid gap-3 sm:gap-5 product-grid">
                   {visible.map((p) => {
                     const state = stockState(p.stock);
                     const inCart = cart.find((i) => i.sku === p.sku);
@@ -593,10 +626,10 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                           {inCart ? (
                             <div
                               className="flex items-center justify-between"
-                              style={{ borderRadius: RADIUS.pill, background: C.ink, padding: "9px 8px 9px 16px" }}
+                              style={{ borderRadius: RADIUS.pill, background: C.ink, padding: "6px 6px 6px 14px" }}
                             >
                               <span style={{ color: C.surface, fontSize: 13, fontWeight: 600 }}>
-                                {inCart.qty} шт в корзине
+                                {inCart.qty} шт<span className="hidden sm:inline"> в корзине</span>
                               </span>
                               <div className="flex items-center gap-1">
                                 <button

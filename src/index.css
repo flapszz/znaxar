@@ -49,3 +49,12 @@ input[type="checkbox"] {
   color: rgba(251, 248, 243, 0.72);
   opacity: 1;
 }
+
+.product-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}

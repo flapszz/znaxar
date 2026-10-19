@@ -69,7 +69,7 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
       )}
 
       <div className="flex gap-8 flex-wrap">
-        <div style={{ flex: "2 1 380px", minWidth: 0 }}>
+        <div className="order-2 min-[700px]:order-1" style={{ flex: "2 1 380px", minWidth: 0 }}>
           <h1 style={{ ...HEAD, fontSize: "clamp(24px,4vw,30px)", color: C.ink }}>Заявка</h1>
           <p className="mt-1 mb-6" style={{ fontSize: 14, color: INK[60] }}>
             Оставьте контакты — перезвоним, подтвердим наличие и договоримся о доставке.
@@ -89,7 +89,7 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
           />
 
           <Field label="Имя">
-            <input value={form.name} onChange={upd("name")} className="w-full px-4 py-2.5" style={inputStyle} />
+            <input value={form.name} onChange={upd("name")} autoComplete="name" className="w-full px-4 py-2.5" style={inputStyle} />
             {attempted && !form.name.trim() && (
               <span className="block mt-1" style={{ fontSize: 12, color: C.danger }}>
                 Укажите имя.
@@ -101,6 +101,8 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
               value={form.phone}
               onChange={updPhone}
               type="tel"
+              inputMode="tel"
+              autoComplete="tel"
               placeholder="+7 (___) ___-__-__"
               className="w-full px-4 py-2.5"
               style={inputStyle}
@@ -112,14 +114,14 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
             )}
           </Field>
           <Field label="Город" hint="Пункт выдачи выберем на звонке. Позже здесь встанет карта СДЭК.">
-            <input value={form.city} onChange={upd("city")} className="w-full px-4 py-2.5" style={inputStyle} />
+            <input value={form.city} onChange={upd("city")} autoComplete="address-level2" className="w-full px-4 py-2.5" style={inputStyle} />
             {attempted && !form.city.trim() && (
               <span className="block mt-1" style={{ fontSize: 12, color: C.danger }}>
                 Укажите город.
               </span>
             )}
           </Field>
-          <Field label="Комментарий">
+          <Field label="Комментарий (необязательно)">
             <textarea
               value={form.comment}
               onChange={upd("comment")}
@@ -183,7 +185,7 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
           </p>
         </div>
 
-        <div style={{ flex: "1 1 280px", minWidth: 0 }}>
+        <div className="order-1 min-[700px]:order-2" style={{ flex: "1 1 280px", minWidth: 0 }}>
           <div className="p-5" style={{ background: C.ink, borderRadius: RADIUS.card, color: C.surface }}>
             <div style={{ ...OVERLINE, color: "rgba(251,248,243,.62)" }}>Ваша заявка</div>
             <div className="mt-3">
