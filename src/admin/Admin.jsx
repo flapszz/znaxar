@@ -6,6 +6,7 @@ import { AdminCollections } from "./AdminCollections";
 import { AdminOrders } from "./AdminOrders";
 import { AdminProducts } from "./AdminProducts";
 import { AdminPublications } from "./AdminPublications";
+import { AdminStart } from "./AdminStart";
 import { Toast } from "./Toast";
 import { adminFetch } from "./api";
 
@@ -47,6 +48,7 @@ export function Admin({ products, bySku, refreshProducts }) {
 
   return (
     <div className="max-w-5xl mx-auto px-5 py-6">
+      {orders !== null && <AdminStart products={products} orders={orders} goTo={setTab} />}
       <div className="flex gap-1.5 mb-6 overflow-x-auto sm:flex-wrap sm:overflow-visible pb-1" style={{ scrollbarWidth: "none" }}>
         {[
           ["orders", newCount > 0 ? `Заявки · ${newCount} ${pluralNew(newCount)}` : "Заявки"],
