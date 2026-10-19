@@ -7,6 +7,15 @@ import { money } from "../utils/format";
 
 const PAGE_SIZE = 10;
 
+// Главное действие по заявке — следующий шаг; любой другой статус (в том числе отмена) — в выпадающем списке.
+const NEXT_STEP = {
+  новая: ["подтверждена", "Подтвердить заявку"],
+  подтверждена: ["собрана", "Отметить собранной"],
+  собрана: ["отправлена", "Отметить отправленной"],
+  отправлена: ["выдана", "Отметить выданной"],
+};
+const phoneHref = (phone) => `tel:+${phone.replace(/\D/g, "").replace(/^8/, "7")}`;
+
 export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("все");
@@ -128,7 +137,7 @@ export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
                     </div>
                     <div className="mt-1" style={{ fontSize: 14 }}>
                       {o.name} ·{" "}
-                      <a href={`tel:+${o.phone.replace(/\D/g, "").replace(/^8/, "7")}`} style={{ color: C.violet, fontWeight: 600 }}>
+                      <a href={phoneHref(o.phone)} style={{ color: C.violet, fontWeight: 600 }}>
                         {o.phone}
                       </a>
                     </div>
@@ -149,7 +158,7 @@ export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
                       Согласие на ПДн: {o.consentGiven ? `есть, ${o.consentAt} (${o.consentVersion})` : "нет"}
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="sm:text-right">
                     <div style={{ ...HEAD, fontSize: 18, whiteSpace: "nowrap" }}>{money(total)}</div>
                     <div style={{ fontSize: 12, color: INK[60] }}>оплата при получении</div>
                   </div>
@@ -169,28 +178,43 @@ export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <span style={{ fontSize: 12, color: INK[60] }}>Статус:</span>
-                  {STATUSES.map((s) => (
+                  <a
+                    href={phoneHref(o.phone)}
+                    className="inline-flex items-center justify-center px-4 py-2.5"
+                    style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${C.violet}`, color: C.violet, fontSize: 14, fontWeight: 600 }}
+                  >
+                    Позвонить
+                  </a>
+                  {NEXT_STEP[o.status] && (
                     <button
-                      key={s}
-                      onClick={() => move(o.id, s)}
-                      className="px-3 py-1.5 transition-colors"
-                      style={{
-                        borderRadius: RADIUS.pill,
-                        fontSize: 12,
-                        background: o.status === s ? C.violet : "transparent",
-                        color: o.status === s ? C.surface : INK[60],
-                        border: `1.5px solid ${o.status === s ? C.violet : INK[18]}`,
-                      }}
+                      onClick={() => move(o.id, NEXT_STEP[o.status][0])}
+                      className="px-4 py-2.5"
+                      style={{ borderRadius: RADIUS.pill, background: C.violet, color: C.surface, fontSize: 14, fontWeight: 600 }}
                     >
-                      {s}
+                      {NEXT_STEP[o.status][1]}
                     </button>
-                  ))}
+                  )}
+                  <label className="flex items-center gap-2" style={{ fontSize: 13, color: INK[72] }}>
+                    <span className="sr-only sm:not-sr-only">Статус:</span>
+                    <select
+                      value={o.status}
+                      onChange={(e) => move(o.id, e.target.value)}
+                      aria-label="Изменить статус заявки"
+                      className="px-3 py-2"
+                      style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, background: C.surface, fontSize: 14, color: C.ink }}
+                    >
+                      {STATUSES.map((st) => (
+                        <option key={st} value={st}>
+                          {st}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                   {/* INTEGRATION: кнопка создания накладной в СДЭК */}
-                  <span className="ml-auto" style={{ fontSize: 11, color: INK[45] }}>
-                    Оформить в СДЭК — позже
-                  </span>
-                  <button onClick={() => removeOrder(o.id)} style={{ fontSize: 12, color: C.danger }}>
+                  <span style={{ fontSize: 12, color: INK[60] }}>Оформить в СДЭК — позже</span>
+                  <button onClick={() => removeOrder(o.id)} style={{ fontSize: 13, color: C.danger }}>
                     Удалить заявку
                   </button>
                 </div>

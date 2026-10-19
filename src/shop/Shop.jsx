@@ -522,7 +522,8 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                         Цены от <b style={{ color: C.ink }}>{money(minPrice)}</b>.{" "}
                       </>
                     )}
-                    Оставьте заявку — перезвоним, подтвердим наличие и отправим в ваш пункт выдачи. Оплата при получении.
+                    <span className="hidden sm:inline">Оставьте заявку — перезвоним, подтвердим наличие и отправим в ваш пункт выдачи. </span>
+                    Оплата при получении.
                   </p>
 
                   <form
@@ -553,7 +554,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     </Btn>
                   </form>
 
-                  <p className="mt-5 sm:hidden" style={{ fontSize: 13, color: INK[72] }}>
+                  <p className={`mt-5 sm:hidden ${THEME_KEY === "index" ? "hidden" : ""}`} style={{ fontSize: 13, color: INK[72] }}>
                     Перезвоним за час · Оплата при получении · Доставка СДЭК
                   </p>
                   <div className="mt-5 hidden sm:flex flex-wrap gap-x-6 gap-y-1.5" style={{ fontSize: 13, color: INK[72] }}>

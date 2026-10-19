@@ -349,7 +349,10 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
           </p>
         )}
 
-        <div className="flex gap-2">
+        <div
+          className="flex gap-2 sticky bottom-0 py-3 -mx-1 px-1 z-10"
+          style={{ background: C.paper, paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))", borderTop: `1px solid ${INK[12]}` }}
+        >
           <Btn disabled={!canSave} onClick={handleSave}>
             {saving ? "Сохраняем…" : "Сохранить"}
           </Btn>

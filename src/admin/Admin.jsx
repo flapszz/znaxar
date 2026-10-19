@@ -37,7 +37,7 @@ export function Admin({ products, bySku, refreshProducts }) {
 
   return (
     <div className="max-w-5xl mx-auto px-5 py-6">
-      <div className="flex flex-wrap gap-1.5 mb-6">
+      <div className="flex gap-1.5 mb-6 overflow-x-auto sm:flex-wrap sm:overflow-visible pb-1" style={{ scrollbarWidth: "none" }}>
         {[
           ["orders", newCount > 0 ? `Заявки · ${newCount} новых` : "Заявки"],
           ["products", `Товары (${products.length})`],
@@ -50,7 +50,7 @@ export function Admin({ products, bySku, refreshProducts }) {
           <button
             key={k}
             onClick={() => setTab(k)}
-            className="px-3.5 py-1.5 transition-colors"
+            className="px-3.5 py-2 transition-colors shrink-0"
             style={{
               borderRadius: RADIUS.pill,
               fontSize: 13,

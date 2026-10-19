@@ -224,30 +224,32 @@ export function AdminProducts({ products, refreshProducts, notify }) {
           {paged.map((p, i) => (
             <div
               key={p.sku}
-              className="flex items-center gap-4 px-4 py-3"
+              className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3"
               style={{ background: C.card, borderTop: i === 0 ? "none" : `1px solid ${INK[12]}` }}
             >
               <div className="w-12 shrink-0">
                 <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} size="sm" category={p.category} />
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0" style={{ flexBasis: 160 }}>
                 <div style={{ fontSize: 14 }}>{p.title || p.stockName || p.sku}</div>
-                <div style={{ fontSize: 11, color: INK[60] }}>
+                <div style={{ fontSize: 12, color: INK[60] }}>
                   {p.hasStock ? `${p.sku} · ${money(p.price)} · остаток ${p.stock}` : `${p.sku} · не указаны цена и остаток`}
                 </div>
               </div>
-              {p.published ? (
-                <Badge variant="acid">на сайте</Badge>
-              ) : !p.hasStock ? (
-                <Badge variant="danger">нет цены и остатка</Badge>
-              ) : p.title ? (
-                <Badge variant="neutral">скрыт</Badge>
-              ) : (
-                <Badge variant="danger">нет описания</Badge>
-              )}
-              <Btn variant="outline" onClick={() => setEditing(p.sku)}>
-                Открыть
-              </Btn>
+              <div className="flex items-center justify-between gap-3 w-full sm:w-auto">
+                {p.published ? (
+                  <Badge variant="acid">на сайте</Badge>
+                ) : !p.hasStock ? (
+                  <Badge variant="danger">нет цены и остатка</Badge>
+                ) : p.title ? (
+                  <Badge variant="neutral">скрыт</Badge>
+                ) : (
+                  <Badge variant="danger">нет описания</Badge>
+                )}
+                <Btn variant="outline" onClick={() => setEditing(p.sku)}>
+                  Открыть
+                </Btn>
+              </div>
             </div>
           ))}
         </div>
