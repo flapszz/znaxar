@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { createHash } from "node:crypto";
 import compression from "compression";
 import express from "express";
 import session from "express-session";
@@ -19,13 +20,15 @@ import { sitemapRouter } from "./routes/sitemap.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProduction = process.env.NODE_ENV === "production";
 
-// Без секрета сессий (SESSION_SECRET) вход в админку не работает, а каждый запрос падает с 500.
-// На боевом сервере лучше остановиться сразу с понятным сообщением, чем отдавать людям «Internal Server Error».
-if (process.env.NODE_ENV === "production" && !String(process.env.SESSION_SECRET || "").trim()) {
-  console.error(
-    "ОШИБКА НАСТРОЙКИ: не задана переменная SESSION_SECRET. В Render откройте сервис → Environment → " +
-      "добавьте SESSION_SECRET (любая длинная случайная строка, например из команды `openssl rand -hex 32`) и сохраните."
-  );
+// Секрет сессий: лучше задать свой (переменная SESSION_SECRET). Если её нет, берём стабильный секрет,
+// выведенный из пароля базы данных, — сессии и вход в админку работают и не слетают при перезапуске.
+let sessionSecret = String(process.env.SESSION_SECRET || "").trim();
+if (!sessionSecret && process.env.DATABASE_URL) {
+  sessionSecret = createHash("sha256").update(`znaxar-session:${process.env.DATABASE_URL}`).digest("hex");
+  console.warn("SESSION_SECRET не задан — использую секрет, выведенный из DATABASE_URL. Лучше задать SESSION_SECRET в Render → Environment.");
+}
+if (!sessionSecret) {
+  console.error("ОШИБКА НАСТРОЙКИ: не заданы ни SESSION_SECRET, ни DATABASE_URL.");
   process.exit(1);
 }
 
@@ -41,7 +44,7 @@ app.use(express.json());
 app.use(
   session({
     store: new PgSession({ pool }),
-    secret: process.env.SESSION_SECRET,
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
