@@ -1,5 +1,5 @@
-// Банка-чертёж для стиля «Индекс»: линейный рисунок с размерными линиями, выносками
-// и «разнесёнными» капсулами. Цвет берётся из текущего цвета текста (currentColor).
+// Банка-чертёж для стиля «Индекс»: линейный рисунок с размерными линиями, выносками на детали
+// (этикетка, крышка) и «разнесёнными» капсулами. Цвет берётся из текущего цвета текста (currentColor).
 // Линии прорисовываются ступенями (классы bp-draw / bp-fade в index.css), без анимации
 // рисунок просто стоит целиком.
 const line = (i, d, extra = {}) => (
@@ -56,11 +56,11 @@ export function JarBlueprint({ className = "", style, title = "" }) {
       {line(9, "M172 198h28", { strokeWidth: 1 })}
       <circle className="bp-fade" style={{ "--i": 10 }} cx="206" cy="198" r="6" strokeWidth="1" />
       <text className="bp-fade" style={{ "--i": 10 }} x="206" y="201.5" textAnchor="middle" fontSize="9" fill="currentColor" stroke="none">1</text>
-      <text className="bp-fade" style={{ "--i": 10 }} x="218" y="202" fontSize="10" fill="currentColor" stroke="none">СГР</text>
+      <text className="bp-fade" style={{ "--i": 10 }} x="218" y="202" fontSize="10" fill="currentColor" stroke="none">ЭТИКЕТКА</text>
       {line(9, "M176 83h24", { strokeWidth: 1 })}
       <circle className="bp-fade" style={{ "--i": 10 }} cx="206" cy="83" r="6" strokeWidth="1" />
       <text className="bp-fade" style={{ "--i": 10 }} x="206" y="86.5" textAnchor="middle" fontSize="9" fill="currentColor" stroke="none">2</text>
-      <text className="bp-fade" style={{ "--i": 10 }} x="218" y="87" fontSize="10" fill="currentColor" stroke="none">СКЛАД</text>
+      <text className="bp-fade" style={{ "--i": 10 }} x="218" y="87" fontSize="10" fill="currentColor" stroke="none">КРЫШКА</text>
 
       {/* две капсулы «в разборе» над крышкой */}
       <g className="bp-fade" style={{ "--i": 11 }}>
