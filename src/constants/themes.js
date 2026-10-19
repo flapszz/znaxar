@@ -1,14 +1,14 @@
 // Направления оформления сайта.
 //
 // КАК СМЕНИТЬ СТИЛЬ ВСЕГО САЙТА: поменять DEFAULT_THEME ниже на ключ из списка
-// (coral, classic, index, herbal, clean, honey, lab, price) — больше ничего править не нужно.
+// (index, coral, classic, herbal, clean, honey, lab, price) — больше ничего править не нужно.
 // ПОПРОБОВАТЬ БЕЗ ПРАВОК: добавить к адресу ?theme=<ключ>, выбор помнится до закрытия вкладки,
 // ?theme=default возвращает основной стиль.
 //
 // У каждого направления: цвета (C), скругления (radius), шрифт заголовков (head),
 // шрифт текста (body) и строка Google Fonts (fonts) — шрифты неосновных направлений
 // подгружаются только когда направление выбрано.
-export const DEFAULT_THEME = "coral";
+export const DEFAULT_THEME = "index";
 
 export const THEMES = {
   coral: {
