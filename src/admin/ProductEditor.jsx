@@ -113,6 +113,31 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
           {!isNew && <span style={{ fontSize: 12, color: INK[60] }}>{p.sku}</span>}
         </div>
 
+        <div className="mb-5 p-4" style={{ background: C.card, border: `1px solid ${INK[12]}`, borderRadius: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 600 }}>
+            {canPublish ? "Всё обязательное заполнено — товар можно показывать на сайте." : "Чтобы показать товар на сайте, заполните обязательное:"}
+          </div>
+          <ul className="mt-2 grid gap-1" style={{ fontSize: 13 }}>
+            {[
+              ["Цена и остаток", priceValid && stockValid, true],
+              ["Название на сайте", Boolean(f.title.trim()), true],
+              ["Категория", Boolean(f.category), true],
+              ["Номер СГР", Boolean(f.sgr.trim()), true],
+              ["Описание", Boolean(f.description.trim()), false],
+              ["Фото товара", Boolean(imageUrl), false],
+            ].map(([label, ok, required]) => (
+              <li key={label} className="flex items-center gap-2" style={{ color: ok ? C.ink : INK[72] }}>
+                <span aria-hidden="true" style={{ width: 16, color: ok ? "#2E9E5B" : INK[45], fontWeight: 700 }}>
+                  {ok ? "✓" : "○"}
+                </span>
+                {label}
+                {!ok && !required && <span style={{ fontSize: 12, color: INK[60] }}>— желательно</span>}
+                {!ok && required && <span style={{ fontSize: 12, color: C.danger }}>— обязательно</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+
         {isNew ? (
           <Field label="Артикул" hint="Такой же, как в учётной системе (МойСклад или аналог).">
             <input

@@ -6,10 +6,13 @@ import { AdminCollections } from "./AdminCollections";
 import { AdminOrders } from "./AdminOrders";
 import { AdminProducts } from "./AdminProducts";
 import { AdminPublications } from "./AdminPublications";
+import { Toast } from "./Toast";
 
 export function Admin({ products, bySku, refreshProducts }) {
   const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState(null); // null = ещё грузится
+  const [toast, setToast] = useState("");
+  const notify = (message) => setToast(message);
 
   const refreshOrders = () =>
     fetch("/api/orders", { credentials: "same-origin" })
@@ -22,6 +25,15 @@ export function Admin({ products, bySku, refreshProducts }) {
   }, []);
 
   const newCount = (orders || []).filter((o) => o.status === "новая").length;
+
+  // Число новых заявок в названии вкладки — видно, даже если админка открыта в фоне.
+  useEffect(() => {
+    const before = document.title;
+    document.title = newCount > 0 ? `(${newCount}) Заявки · Знахарь` : "Админка · Знахарь";
+    return () => {
+      document.title = before;
+    };
+  }, [newCount]);
 
   return (
     <div className="max-w-5xl mx-auto px-5 py-6">
@@ -53,7 +65,7 @@ export function Admin({ products, bySku, refreshProducts }) {
         ))}
       </div>
       {tab === "products" ? (
-        <AdminProducts products={products} refreshProducts={refreshProducts} />
+        <AdminProducts products={products} refreshProducts={refreshProducts} notify={notify} />
       ) : tab === "categories" ? (
         <AdminCategories />
       ) : tab === "brands" ? (
@@ -67,8 +79,9 @@ export function Admin({ products, bySku, refreshProducts }) {
       ) : orders === null ? (
         <p style={{ fontSize: 13, color: INK[60] }}>Загружаем заявки…</p>
       ) : (
-        <AdminOrders orders={orders} refreshOrders={refreshOrders} bySku={bySku} />
+        <AdminOrders orders={orders} refreshOrders={refreshOrders} bySku={bySku} notify={notify} />
       )}
+      <Toast message={toast} onDone={() => setToast("")} />
     </div>
   );
 }

@@ -7,19 +7,32 @@ import { money } from "../utils/format";
 
 const PAGE_SIZE = 10;
 
-export function AdminOrders({ orders, refreshOrders, bySku }) {
+export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("все");
   const [page, setPage] = useState(1);
 
   const move = async (id, status) => {
     if (status === "отменена" && !window.confirm(`Отменить заявку № ${id}? Если остаток уже был списан, он вернётся на склад.`)) return;
-    await fetch(`/api/orders/${id}/status`, {
+    const res = await fetch(`/api/orders/${id}/status`, {
       method: "PATCH",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
-    }).catch(() => {});
+    }).catch(() => null);
+    if (res?.ok) {
+      notify?.(
+        status === "отменена"
+          ? `Заявка № ${id} отменена. Остаток на сайте пересчитан.`
+          : status === "новая"
+            ? `Заявка № ${id} снова новая. Остаток на сайте пересчитан.`
+            : status === "выдана"
+              ? `Заявка № ${id} выдана. Закрыта.`
+              : `Заявка № ${id}: ${status}. Остаток на сайте списан.`
+      );
+    } else {
+      notify?.("Не удалось сменить статус. Попробуйте ещё раз.");
+    }
     refreshOrders();
   };
 
@@ -49,8 +62,17 @@ export function AdminOrders({ orders, refreshOrders, bySku }) {
     setPage(1);
   };
 
+  const newCount = orders.filter((o) => o.status === "новая").length;
+
   return (
     <div>
+      <p className="mb-4" style={{ fontSize: 15, fontWeight: 600, color: C.ink }}>
+        {orders.length === 0
+          ? "Заявок пока нет."
+          : newCount > 0
+            ? `Новых заявок: ${newCount}. Позвоните им в первую очередь — телефон в карточке нажимается.`
+            : "Новых заявок нет — все обработаны."}
+      </p>
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="flex items-center gap-2 overflow-x-auto flex-nowrap pb-1">
           {["все", ...STATUSES].map((s) => (
@@ -81,7 +103,9 @@ export function AdminOrders({ orders, refreshOrders, bySku }) {
 
       {filtered.length === 0 ? (
         <p className="py-8 text-center" style={{ color: INK[60], fontSize: 13 }}>
-          Ничего не найдено.
+          {orders.length === 0
+            ? "Когда покупатель оформит заявку, она появится здесь, а число новых — в названии вкладки браузера."
+            : "Ничего не найдено. Попробуйте другой статус или слово."}
         </p>
       ) : (
         <div className="grid gap-3">

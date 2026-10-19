@@ -13,7 +13,7 @@ const PAGE_SIZE = 12;
 const statusOf = (p) => (p.published ? "на сайте" : !p.hasStock ? "нет цены и остатка" : p.title ? "скрыт" : "нет описания");
 const STATUS_FILTERS = ["все", "на сайте", "скрыт", "нет описания", "нет цены и остатка"];
 
-export function AdminProducts({ products, refreshProducts }) {
+export function AdminProducts({ products, refreshProducts, notify }) {
   const [editing, setEditing] = useState(null);
   const [creating, setCreating] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -47,6 +47,7 @@ export function AdminProducts({ products, refreshProducts }) {
       if (!res.ok) throw new Error();
       await refreshProducts();
       setEditing(null);
+      notify?.("Товар удалён.");
     } catch {
       setSaveError("Не удалось удалить товар. Попробуйте ещё раз.");
     }
@@ -65,6 +66,12 @@ export function AdminProducts({ products, refreshProducts }) {
       await refreshProducts();
       setEditing(null);
       setCreating(false);
+      const name = next.title || sku;
+      notify?.(
+        next.published
+          ? `Сохранено. «${name}» виден на сайте.`
+          : `Сохранено. «${name}» пока скрыт — покупатели его не видят.`
+      );
     } catch {
       setSaveError("Не удалось сохранить товар. Попробуйте ещё раз.");
     }
@@ -106,6 +113,7 @@ export function AdminProducts({ products, refreshProducts }) {
         ? ` Не нашли на сайте и пропустили: ${data.notFound.slice(0, 8).join(", ")}${data.notFound.length > 8 ? " и ещё " + (data.notFound.length - 8) : ""} — проверьте артикулы.`
         : "";
       setImportMessage(`Готово: обновлено ${data.updated} из ${data.total} строк.${missing}`);
+      notify?.(`Цены и остатки обновлены: ${data.updated}.`);
     } catch (err) {
       setImportError(err.message || "Не удалось загрузить файл.");
     } finally {
@@ -207,7 +215,9 @@ export function AdminProducts({ products, refreshProducts }) {
 
       {filtered.length === 0 ? (
         <p className="py-8 text-center" style={{ color: INK[60], fontSize: 13 }}>
-          Ничего не найдено.
+          {products.length === 0
+            ? "Товаров пока нет. Нажмите «+ Новая позиция» или загрузите таблицу с ценами."
+            : "Ничего не найдено. Попробуйте другой фильтр или слово."}
         </p>
       ) : (
         <div className="rounded-2xl overflow-hidden" style={{ border: `1.5px solid ${INK[12]}` }}>
