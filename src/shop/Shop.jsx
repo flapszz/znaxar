@@ -649,14 +649,14 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 </div>
               ) : (
                 <div className="mt-5 grid gap-3 sm:gap-5 product-grid">
-                  {visible.map((p, idx) => {
+                  {visible.map((p) => {
                     const state = stockState(p.stock);
                     const inCart = cart.find((i) => i.sku === p.sku);
                     return (
                       <article
                         key={p.sku}
-                        className="card-elevated anim-card p-4 flex flex-col"
-                        style={{ "--d": `${Math.min(idx, 7) * 40}ms`, borderRadius: RADIUS.card, background: C.card, border: `1.5px solid ${INK[12]}` }}
+                        className="card-elevated p-4 flex flex-col"
+                        style={{ borderRadius: RADIUS.card, background: C.card, border: `1.5px solid ${INK[12]}` }}
                       >
                         <div className="relative">
                           <button onClick={() => openProduct(p.sku)} className="text-left w-full">

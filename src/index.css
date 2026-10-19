@@ -240,15 +240,6 @@ input[type="checkbox"] {
     animation: idx-appear 180ms steps(3, end) backwards;
     animation-delay: var(--d, 0ms);
   }
-  .anim-card {
-    animation: rise 260ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
-    animation-delay: var(--d, 0ms);
-  }
-  /* карточка выезжает «развёрткой» сверху вниз, рисунок на ней прорисовывается следом */
-  [data-theme="index"] .anim-card {
-    animation: idx-scan 380ms steps(10, end) backwards;
-    animation-delay: var(--d, 0ms);
-  }
   [data-theme="index"] .anim-type {
     animation: idx-wipe-x 520ms steps(22, end) backwards;
     animation-delay: var(--d, 0ms);
