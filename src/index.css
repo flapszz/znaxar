@@ -44,3 +44,8 @@ input[type="checkbox"] {
   color: rgba(0, 39, 82, 0.55);
   opacity: 1;
 }
+
+.ph-light::placeholder {
+  color: rgba(251, 248, 243, 0.72);
+  opacity: 1;
+}

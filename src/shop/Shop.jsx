@@ -32,6 +32,17 @@ function screenFromPath(pathname) {
   return { screen: "catalog", sku: null };
 }
 
+// Подзаголовок карточки — только то, чего нет в названии (например, «60 таб.»),
+// иначе название на карточке повторяется дважды.
+function packSize(p) {
+  const name = p.stockName || "";
+  if (p.title && name.toLowerCase().startsWith(p.title.toLowerCase())) {
+    const rest = name.slice(p.title.length).replace(/^[\s,·-]+/, "").trim();
+    return rest || "";
+  }
+  return name;
+}
+
 export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, cookieBannerVisible }) {
   const [cat, setCat] = useState("Все");
   const [brand, setBrand] = useState("Все");
@@ -109,6 +120,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
     .filter((p) => !inStockOnly || p.stock > 0)
     .sort((a, b) => (sort === "дешевле" ? a.price - b.price : sort === "дороже" ? b.price - a.price : 0));
 
+  const minPrice = Math.min(...products.filter((p) => p.published && p.stock > 0).map((p) => p.price));
   const count = cart.reduce((s, i) => s + i.qty, 0);
   const total = cart.reduce((s, i) => s + i.qty * (bySku[i.sku]?.price || 0), 0);
 
@@ -150,14 +162,14 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
             </div>
             <label
               className="flex items-center gap-2 px-3.5 py-2 mb-3"
-              style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.15)" }}
+              style={{ borderRadius: RADIUS.pill, background: C.violetDk }}
             >
               <Search size={15} color="rgba(255,255,255,.7)" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Искать товары…"
-                className="flex-1 bg-transparent outline-none"
+                className="flex-1 bg-transparent outline-none ph-light"
                 style={{ color: C.surface, fontSize: 13 }}
               />
             </label>
@@ -167,7 +179,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 className="px-3.5 py-1.5 shrink-0 flex items-center gap-1.5"
                 style={{
                   borderRadius: RADIUS.pill,
-                  background: showFavorites ? C.acid : "rgba(255,255,255,.15)",
+                  background: showFavorites ? C.acid : C.violetDk,
                   color: showFavorites ? C.ink : C.surface,
                   fontSize: 12,
                   fontWeight: showFavorites ? 600 : 400,
@@ -182,7 +194,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   className="px-3.5 py-1.5 shrink-0"
                   style={{
                     borderRadius: RADIUS.pill,
-                    background: cat === c ? C.acid : "rgba(255,255,255,.15)",
+                    background: cat === c ? C.acid : C.violetDk,
                     color: cat === c ? C.ink : C.surface,
                     fontSize: 12,
                     fontWeight: cat === c ? 600 : 400,
@@ -236,7 +248,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Искать товары…"
-                className="flex-1 bg-transparent outline-none"
+                className="flex-1 bg-transparent outline-none ph-light"
                 style={{ color: C.surface, fontSize: 13 }}
               />
             </label>
@@ -424,47 +436,82 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
           {screen === "catalog" && (
             <>
-              <div
-                className="p-5 sm:p-8 flex flex-wrap items-center gap-6"
-                style={{ borderRadius: RADIUS.card, background: C.violet, color: C.surface }}
-              >
-                <div style={{ flex: "1 1 320px" }}>
-                  <span
-                    className="inline-block px-3 py-1 mb-3"
-                    style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.15)", fontSize: 11, fontWeight: 600 }}
-                  >
-                    {products.filter((p) => p.published && p.stock > 0).length} позиций на складе
-                  </span>
-                  <h1 style={{ ...HEAD, fontSize: "clamp(26px,4.5vw,36px)", lineHeight: 1.15 }}>
-                    Добавки со склада,
+              <section className="flex items-center justify-between gap-8">
+                <div className="flex-1 min-w-0">
+                  <h1 style={{ ...HEAD, fontSize: "clamp(30px,5vw,50px)", lineHeight: 1.08, color: C.ink }}>
+                    БАДы со склада
                     <br />
-                    без наценки маркетплейса
+                    по низким ценам
                   </h1>
-                  <p className="hidden sm:block mt-3 max-w-md" style={{ fontSize: 14, fontWeight: 300, color: "#FBF8F3" }}>
+                  <p className="mt-3 max-w-xl" style={{ fontSize: 15, lineHeight: 1.55, color: INK[72] }}>
+                    {Number.isFinite(minPrice) && (
+                      <>
+                        Цены от <b style={{ color: C.ink }}>{money(minPrice)}</b>.{" "}
+                      </>
+                    )}
                     Оставьте заявку — перезвоним, подтвердим наличие и отправим в ваш пункт выдачи. Оплата при получении.
                   </p>
-                  <div className="hidden sm:flex mt-5 gap-3 flex-wrap">
-                    <Btn variant="acid" onClick={scrollToGrid}>
-                      Смотреть каталог
+
+                  <form
+                    className="hidden sm:flex items-center gap-2 mt-6 pl-4 pr-1.5 py-1.5 max-w-xl"
+                    style={{ borderRadius: RADIUS.pill, background: C.card, border: `1.5px solid ${C.ink}` }}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      scrollToGrid();
+                    }}
+                  >
+                    <Search size={18} color={INK[72]} />
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Что ищете? Например, магний или сон"
+                      aria-label="Поиск по каталогу"
+                      className="flex-1 bg-transparent outline-none py-2"
+                      style={{ fontSize: 15, color: C.ink }}
+                    />
+                    <Btn variant="acid" type="submit">
+                      Найти
                     </Btn>
+                  </form>
+
+                  <div className="hidden sm:flex flex-wrap gap-2 mt-3">
+                    {categories.slice(0, 4).map((c) => (
+                      <button
+                        key={c.id ?? c.name}
+                        onClick={() => {
+                          setCat(c.name);
+                          scrollToGrid();
+                        }}
+                        className="px-3.5 py-1.5"
+                        style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, fontSize: 13, color: C.ink }}
+                      >
+                        {c.name}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1.5" style={{ fontSize: 13, color: INK[72] }}>
+                    <span className="flex items-center gap-1.5">
+                      <Clock size={15} /> Перезвоним за час
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Wallet size={15} /> Оплата при получении
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Truck size={15} /> Доставка СДЭК
+                    </span>
                   </div>
                 </div>
-              </div>
-
-              <div
-                className="mt-4 p-4 hidden sm:flex flex-wrap gap-x-6 gap-y-2"
-                style={{ borderRadius: RADIUS.block, background: C.peach, color: C.ink }}
-              >
-                <span className="flex items-center gap-2" style={{ fontSize: 13, fontWeight: 600 }}>
-                  <Clock size={16} strokeWidth={2} /> Перезвоним за час
-                </span>
-                <span className="flex items-center gap-2" style={{ fontSize: 13, fontWeight: 600 }}>
-                  <Wallet size={16} strokeWidth={2} /> Оплата при получении
-                </span>
-                <span className="flex items-center gap-2" style={{ fontSize: 13, fontWeight: 600 }}>
-                  <Truck size={16} strokeWidth={2} /> Доставка СДЭК
-                </span>
-              </div>
+                <img
+                  src="/img/hero-herbs.webp"
+                  alt=""
+                  aria-hidden="true"
+                  width="215"
+                  height="320"
+                  className="hidden md:block shrink-0"
+                  style={{ width: 215, height: "auto" }}
+                />
+              </section>
 
               <div ref={gridRef} className="mt-8 flex items-baseline justify-between flex-wrap gap-2">
                 <h2 style={{ ...HEAD, fontSize: 20, color: C.ink }}>
@@ -533,16 +580,14 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                             />
                           </button>
                         </div>
-                        <p className="mt-1 flex-1" style={{ fontSize: 12.5, color: INK[60] }}>
-                          {p.stockName}
+                        <p className="mt-1 flex-1" style={{ fontSize: 13, color: INK[60] }}>
+                          {packSize(p)}
                         </p>
                         <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
                           <span style={{ ...HEAD, fontSize: 26, whiteSpace: "nowrap" }}>{money(p.price)}</span>
                           <Badge variant={state === "out" ? "danger" : state === "low" ? "acid" : "neutral"}>
                             {STOCK_LABEL[state]}
                           </Badge>
-                        </div>
-                        <div className="mt-2">
                         </div>
                         <div className="mt-3">
                           {inCart ? (
