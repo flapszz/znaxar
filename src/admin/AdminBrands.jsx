@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Btn } from "../components/Btn";
 import { C, INK, inputStyle } from "../constants/theme";
+import { adminFetch } from "./api";
 
 export function AdminBrands() {
   const [brands, setBrands] = useState(null);
@@ -8,7 +9,7 @@ export function AdminBrands() {
   const [error, setError] = useState("");
 
   const refresh = () =>
-    fetch("/api/brands")
+    adminFetch("/api/brands")
       .then((r) => r.json())
       .then((data) => {
         setBrands(data);
@@ -23,7 +24,7 @@ export function AdminBrands() {
   const create = async () => {
     const name = newName.trim();
     if (!name) return;
-    const res = await fetch("/api/brands", {
+    const res = await adminFetch("/api/brands", {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -40,7 +41,7 @@ export function AdminBrands() {
   };
 
   const rename = async (id, name, fallback) => {
-    const res = await fetch(`/api/brands/${id}`, {
+    const res = await adminFetch(`/api/brands/${id}`, {
       method: "PUT",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -57,7 +58,7 @@ export function AdminBrands() {
   };
 
   const remove = async (id) => {
-    const res = await fetch(`/api/brands/${id}`, { method: "DELETE", credentials: "same-origin" });
+    const res = await adminFetch(`/api/brands/${id}`, { method: "DELETE", credentials: "same-origin" });
     if (res.ok) setBrands(await res.json());
   };
 
@@ -66,7 +67,7 @@ export function AdminBrands() {
     const j = index + dir;
     if (j < 0 || j >= order.length) return;
     [order[index], order[j]] = [order[j], order[index]];
-    const res = await fetch("/api/brands/reorder/all", {
+    const res = await adminFetch("/api/brands/reorder/all", {
       method: "PUT",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },

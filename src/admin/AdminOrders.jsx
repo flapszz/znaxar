@@ -4,6 +4,7 @@ import { Pagination } from "../components/Pagination";
 import { C, HEAD, INK, RADIUS, STATUS_VARIANT, inputStyle } from "../constants/theme";
 import { STATUSES } from "../data/orders";
 import { money } from "../utils/format";
+import { adminFetch } from "./api";
 
 const PAGE_SIZE = 10;
 
@@ -17,13 +18,16 @@ const NEXT_STEP = {
 const phoneHref = (phone) => `tel:+${phone.replace(/\D/g, "").replace(/^8/, "7")}`;
 
 export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
+  const [busyId, setBusyId] = useState(null); // защита от двойного нажатия по одной заявке
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("все");
   const [page, setPage] = useState(1);
 
   const move = async (id, status) => {
+    if (busyId === id) return;
     if (status === "отменена" && !window.confirm(`Отменить заявку № ${id}? Если остаток уже был списан, он вернётся на склад.`)) return;
-    const res = await fetch(`/api/orders/${id}/status`, {
+    setBusyId(id);
+    const res = await adminFetch(`/api/orders/${id}/status`, {
       method: "PATCH",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -39,15 +43,16 @@ export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
               ? `Заявка № ${id} выдана. Закрыта.`
               : `Заявка № ${id}: ${status}. Остаток на сайте списан.`
       );
-    } else {
+    } else if (res?.status !== 401) {
       notify?.("Не удалось сменить статус. Попробуйте ещё раз.");
     }
+    setBusyId(null);
     refreshOrders();
   };
 
   const removeOrder = async (id) => {
     if (!window.confirm(`Удалить заявку № ${id}? Имя, телефон и состав заказа будут стёрты, восстановить их нельзя.`)) return;
-    await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "same-origin" }).catch(() => {});
+    await adminFetch(`/api/orders/${id}`, { method: "DELETE", credentials: "same-origin" }).catch(() => {});
     refreshOrders();
   };
 

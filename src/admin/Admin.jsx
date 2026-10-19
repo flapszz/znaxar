@@ -7,6 +7,7 @@ import { AdminOrders } from "./AdminOrders";
 import { AdminProducts } from "./AdminProducts";
 import { AdminPublications } from "./AdminPublications";
 import { Toast } from "./Toast";
+import { adminFetch } from "./api";
 
 // «1 новая», «2 новые», «5 новых»
 function pluralNew(n) {
@@ -24,7 +25,7 @@ export function Admin({ products, bySku, refreshProducts }) {
   const notify = (message) => setToast(message);
 
   const refreshOrders = () =>
-    fetch("/api/orders", { credentials: "same-origin" })
+    adminFetch("/api/orders", { credentials: "same-origin" })
       .then((r) => (r.ok ? r.json() : []))
       .then(setOrders)
       .catch(() => setOrders([]));

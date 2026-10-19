@@ -3,6 +3,7 @@ import { Badge } from "../components/Badge";
 import { Btn } from "../components/Btn";
 import { Field } from "../components/Field";
 import { C, INK, inputStyle } from "../constants/theme";
+import { adminFetch } from "./api";
 
 export function AdminPublications({ type, singular }) {
   const [items, setItems] = useState(null);
@@ -12,7 +13,7 @@ export function AdminPublications({ type, singular }) {
   const [saving, setSaving] = useState(false);
 
   const refresh = () =>
-    fetch(`/api/publications/${type}`)
+    adminFetch(`/api/publications/${type}`)
       .then((r) => (r.ok ? r.json() : []))
       .then(setItems)
       .catch(() => setItems([]));
@@ -33,7 +34,7 @@ export function AdminPublications({ type, singular }) {
     setError("");
     try {
       const url = editing === "new" ? `/api/publications/${type}` : `/api/publications/${type}/${editing}`;
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method: editing === "new" ? "POST" : "PUT",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
@@ -52,7 +53,7 @@ export function AdminPublications({ type, singular }) {
 
   const remove = async (id) => {
     if (!window.confirm(type === "news" ? "Удалить эту новость? Восстановить её будет нельзя." : "Удалить эту статью? Восстановить её будет нельзя.")) return;
-    await fetch(`/api/publications/${type}/${id}`, { method: "DELETE", credentials: "same-origin" });
+    await adminFetch(`/api/publications/${type}/${id}`, { method: "DELETE", credentials: "same-origin" });
     refresh();
   };
 

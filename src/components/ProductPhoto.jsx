@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { BadgePercent, Flame, Leaf, Sparkles } from "lucide-react";
 import { CategoryArt } from "./CategoryArt";
 import { C, INK, PRODUCT_BADGE_STYLE, RADIUS, THEME_KEY, tintForSku } from "../constants/theme";
@@ -27,17 +28,19 @@ export function ProductPhoto({ sku, imageUrl, alt = "", badge, size = "lg", heig
   const big = size === "lg";
   const tint = tintForSku(sku);
   const showBadge = big && badge;
+  const [broken, setBroken] = useState(false); // фото не загрузилось — показываем заставку, а не «битую» картинку
 
   return (
     <div
       className={`relative overflow-hidden ${big ? "photo-lg" : ""}`}
       style={{ height: height ?? (big ? undefined : 80), borderRadius: RADIUS.well, background: tint }}
     >
-      {imageUrl ? (
+      {imageUrl && !broken ? (
         <img
           src={imageUrl}
           alt={alt}
           loading="lazy"
+          onError={() => setBroken(true)}
           style={{
             position: "absolute",
             inset: 0,

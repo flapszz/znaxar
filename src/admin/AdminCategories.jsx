@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Btn } from "../components/Btn";
 import { C, INK, inputStyle } from "../constants/theme";
+import { adminFetch } from "./api";
 
 export function AdminCategories() {
   const [categories, setCategories] = useState(null);
@@ -8,7 +9,7 @@ export function AdminCategories() {
   const [error, setError] = useState("");
 
   const refresh = () =>
-    fetch("/api/categories")
+    adminFetch("/api/categories")
       .then((r) => r.json())
       .then((data) => {
         setCategories(data);
@@ -23,7 +24,7 @@ export function AdminCategories() {
   const create = async () => {
     const name = newName.trim();
     if (!name) return;
-    const res = await fetch("/api/categories", {
+    const res = await adminFetch("/api/categories", {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -40,7 +41,7 @@ export function AdminCategories() {
   };
 
   const rename = async (id, name, fallback) => {
-    const res = await fetch(`/api/categories/${id}`, {
+    const res = await adminFetch(`/api/categories/${id}`, {
       method: "PUT",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -57,7 +58,7 @@ export function AdminCategories() {
   };
 
   const remove = async (id) => {
-    const res = await fetch(`/api/categories/${id}`, { method: "DELETE", credentials: "same-origin" });
+    const res = await adminFetch(`/api/categories/${id}`, { method: "DELETE", credentials: "same-origin" });
     if (res.ok) setCategories(await res.json());
   };
 
@@ -66,7 +67,7 @@ export function AdminCategories() {
     const j = index + dir;
     if (j < 0 || j >= order.length) return;
     [order[index], order[j]] = [order[j], order[index]];
-    const res = await fetch("/api/categories/reorder/all", {
+    const res = await adminFetch("/api/categories/reorder/all", {
       method: "PUT",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },

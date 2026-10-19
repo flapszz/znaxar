@@ -89,7 +89,7 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
           />
 
           <Field label="Имя">
-            <input value={form.name} onChange={upd("name")} autoComplete="name" className="w-full px-4 py-2.5" style={inputStyle} />
+            <input value={form.name} onChange={upd("name")} maxLength={100} autoComplete="name" className="w-full px-4 py-2.5" style={inputStyle} />
             {attempted && !form.name.trim() && (
               <span className="block mt-1" style={{ fontSize: 12, color: C.danger }}>
                 Укажите имя.
@@ -114,7 +114,7 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
             )}
           </Field>
           <Field label="Город" hint="Пункт выдачи выберем на звонке. Позже здесь встанет карта СДЭК.">
-            <input value={form.city} onChange={upd("city")} autoComplete="address-level2" className="w-full px-4 py-2.5" style={inputStyle} />
+            <input value={form.city} onChange={upd("city")} maxLength={100} autoComplete="address-level2" className="w-full px-4 py-2.5" style={inputStyle} />
             {attempted && !form.city.trim() && (
               <span className="block mt-1" style={{ fontSize: 12, color: C.danger }}>
                 Укажите город.
@@ -125,6 +125,7 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
             <textarea
               value={form.comment}
               onChange={upd("comment")}
+              maxLength={1000}
               rows={2}
               className="w-full px-4 py-2.5"
               style={{ ...inputStyle, borderRadius: RADIUS.block }}

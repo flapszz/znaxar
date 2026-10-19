@@ -7,6 +7,7 @@ import { C, INK, RADIUS, inputStyle } from "../constants/theme";
 import { EMPTY_CONTENT } from "../data/content";
 import { money } from "../utils/format";
 import { ProductEditor } from "./ProductEditor";
+import { adminFetch } from "./api";
 
 const PAGE_SIZE = 12;
 
@@ -43,7 +44,7 @@ export function AdminProducts({ products, refreshProducts, notify }) {
   const remove = async (sku) => {
     setSaveError("");
     try {
-      const res = await fetch(`/api/products/${encodeURIComponent(sku)}`, { method: "DELETE", credentials: "same-origin" });
+      const res = await adminFetch(`/api/products/${encodeURIComponent(sku)}`, { method: "DELETE", credentials: "same-origin" });
       if (!res.ok) throw new Error();
       await refreshProducts();
       setEditing(null);
@@ -56,7 +57,7 @@ export function AdminProducts({ products, refreshProducts, notify }) {
   const save = async (sku, next) => {
     setSaveError("");
     try {
-      const res = await fetch(`/api/products/${encodeURIComponent(sku)}`, {
+      const res = await adminFetch(`/api/products/${encodeURIComponent(sku)}`, {
         method: "PUT",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
@@ -80,7 +81,7 @@ export function AdminProducts({ products, refreshProducts, notify }) {
   const uploadImage = async (sku, file) => {
     const formData = new FormData();
     formData.append("photo", file);
-    const res = await fetch(`/api/products/${encodeURIComponent(sku)}/image`, {
+    const res = await adminFetch(`/api/products/${encodeURIComponent(sku)}/image`, {
       method: "POST",
       credentials: "same-origin",
       body: formData,
@@ -101,7 +102,7 @@ export function AdminProducts({ products, refreshProducts, notify }) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/products/import-prices", {
+      const res = await adminFetch("/api/products/import-prices", {
         method: "POST",
         credentials: "same-origin",
         body: formData,

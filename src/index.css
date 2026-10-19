@@ -297,3 +297,10 @@ input[type="checkbox"] {
 .admin-root button:not(.shop-preview *) {
   font-size: 14px !important;
 }
+
+/* Длинные названия и слова не должны ломать карточки: переносим где угодно. */
+h1,
+h2,
+h3 {
+  overflow-wrap: anywhere;
+}

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Activity } from "lucide-react";
 import { Admin } from "./admin/Admin";
+import { Btn } from "./components/Btn";
 import { CatalogSkeleton } from "./components/CatalogSkeleton";
 import { AdminGate } from "./admin/AdminGate";
 import { AboutContent } from "./components/AboutContent";
@@ -120,15 +121,25 @@ export default function App() {
     setCart((c) => (qty <= 0 ? c.filter((i) => i.sku !== sku) : c.map((i) => (i.sku === sku ? { ...i, qty } : i))));
 
   const submitOrder = async (form) => {
-    const res = await fetch("/api/orders", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, items: cart }),
-    });
+    let res;
+    try {
+      res = await fetch("/api/orders", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, items: cart }),
+      });
+    } catch {
+      throw new Error("Нет связи с сервером. Проверьте интернет и нажмите «Отправить заявку» ещё раз — введённые данные сохранены.");
+    }
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      throw new Error(data.error || "Не удалось отправить заявку. Попробуйте ещё раз.");
+      throw new Error(
+        data.error ||
+          (res.status >= 500
+            ? "Сервер сейчас не отвечает. Ваши данные не потеряны — попробуйте отправить заявку ещё раз через минуту."
+            : "Не удалось отправить заявку. Проверьте данные и попробуйте ещё раз.")
+      );
     }
     const order = await res.json();
     setCart([]);
@@ -177,8 +188,13 @@ export default function App() {
       )}
 
       {loadError ? (
-        <div className="max-w-5xl mx-auto px-5 py-16" style={{ color: C.danger, fontSize: 13 }}>
-          {loadError}
+        <div className="max-w-5xl mx-auto px-5 py-16" role="alert" style={{ color: C.ink, fontSize: 15 }}>
+          <p style={{ color: C.danger }}>{loadError}</p>
+          <div className="mt-4">
+            <Btn variant="acid" onClick={() => loadProducts()}>
+              Попробовать ещё раз
+            </Btn>
+          </div>
         </div>
       ) : products === null ? (
         <CatalogSkeleton />

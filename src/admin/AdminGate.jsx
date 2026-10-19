@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Btn } from "../components/Btn";
 import { C, HEAD, INK, inputStyle } from "../constants/theme";
+import { SESSION_EXPIRED_EVENT } from "./api";
 
 export function AdminGate({ children }) {
   const [status, setStatus] = useState("checking"); // checking | in | out
@@ -13,6 +14,16 @@ export function AdminGate({ children }) {
     fetch("/api/auth/me", { credentials: "same-origin" })
       .then((r) => setStatus(r.ok ? "in" : "out"))
       .catch(() => setStatus("out"));
+  }, []);
+
+  // Сессия закончилась, пока админка была открыта: возвращаем на вход и объясняем, что случилось.
+  useEffect(() => {
+    const onExpired = () => {
+      setError("Сессия закончилась, войдите снова. Несохранённые изменения могли пропасть.");
+      setStatus("out");
+    };
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
   }, []);
 
   const submit = async (e) => {

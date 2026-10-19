@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Btn } from "../components/Btn";
 import { C, HEAD, INK, inputStyle } from "../constants/theme";
+import { adminFetch } from "./api";
 
 export function AdminCollections({ products }) {
   const [collections, setCollections] = useState(null);
@@ -9,7 +10,7 @@ export function AdminCollections({ products }) {
   const [error, setError] = useState("");
 
   const refresh = () =>
-    fetch("/api/collections")
+    adminFetch("/api/collections")
       .then((r) => r.json())
       .then((data) => {
         setCollections(data);
@@ -24,7 +25,7 @@ export function AdminCollections({ products }) {
   const create = async () => {
     const name = newName.trim();
     if (!name) return;
-    const res = await fetch("/api/collections", {
+    const res = await adminFetch("/api/collections", {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -39,7 +40,7 @@ export function AdminCollections({ products }) {
   };
 
   const rename = async (id, name) => {
-    const res = await fetch(`/api/collections/${id}`, {
+    const res = await adminFetch(`/api/collections/${id}`, {
       method: "PUT",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -49,7 +50,7 @@ export function AdminCollections({ products }) {
   };
 
   const remove = async (id) => {
-    const res = await fetch(`/api/collections/${id}`, { method: "DELETE", credentials: "same-origin" });
+    const res = await adminFetch(`/api/collections/${id}`, { method: "DELETE", credentials: "same-origin" });
     if (res.ok) setCollections(await res.json());
   };
 
@@ -58,7 +59,7 @@ export function AdminCollections({ products }) {
     const j = index + dir;
     if (j < 0 || j >= order.length) return;
     [order[index], order[j]] = [order[j], order[index]];
-    const res = await fetch("/api/collections/reorder/all", {
+    const res = await adminFetch("/api/collections/reorder/all", {
       method: "PUT",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -192,7 +193,7 @@ function CollectionProducts({ collection, products, onBack, onSaved }) {
 
   const save = async () => {
     setSaving(true);
-    const res = await fetch(`/api/collections/${collection.id}/products`, {
+    const res = await adminFetch(`/api/collections/${collection.id}/products`, {
       method: "PUT",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
