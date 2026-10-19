@@ -184,7 +184,7 @@ export default function App() {
         <header style={{ borderBottom: `2px solid ${C.ink}`, background: C.surface }}>
           <div className="max-w-5xl mx-auto flex items-center gap-4 px-5 py-4">
             <div className="flex items-center gap-2.5 shrink-0">
-              <Activity size={20} color={C.acid} strokeWidth={2.25} />
+              <Activity size={20} color={C.violet} strokeWidth={2.25} />
               <span style={{ ...HEAD, fontSize: 20, color: C.ink }}>Знахарь</span>
             </div>
             <button

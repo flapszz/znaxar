@@ -344,7 +344,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               </div>
             )}
 
-            {collections.length > 0 && (
+            {visibleCollections.length > 0 && (
               <div>
                 <div style={{ ...OVERLINE, color: "rgba(251,248,243,.62)" }}>Подборки</div>
                 <div className="mt-2 flex flex-col gap-1.5">
