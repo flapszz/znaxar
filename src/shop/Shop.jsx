@@ -5,7 +5,8 @@ import { Btn } from "../components/Btn";
 import { ContactLine } from "../components/ContactLine";
 import { ProductPhoto } from "../components/ProductPhoto";
 import { Plaque } from "../components/Plaque";
-import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, SHADOW_FRAME } from "../constants/theme";
+import { Ticker } from "../components/Ticker";
+import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, SHADOW_FRAME, THEME_KEY } from "../constants/theme";
 import { SELLER } from "../data/seller";
 import { STOCK_LABEL, money, stockState } from "../utils/format";
 import { useFavorites } from "../utils/useFavorites";
@@ -522,6 +523,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   style={{ width: 215, height: "auto" }}
                 />
               </section>
+              {THEME_KEY === "index" && <Ticker />}
 
               <div ref={gridRef} className="mt-8 flex items-baseline justify-between flex-wrap gap-2">
                 <h2 style={{ ...HEAD, fontSize: 20, color: C.ink }}>

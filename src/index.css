@@ -2,26 +2,26 @@
 
 body {
   margin: 0;
-  background: #e9e4dc;
-  font-family: "Onest", system-ui, sans-serif;
-  color: #002752;
+  background: var(--paper, #e9e4dc);
+  font-family: var(--font-body, "Onest", system-ui, sans-serif);
+  color: var(--ink, #002752);
 }
 
 ::selection {
-  background: #bfe800;
-  color: #002752;
+  background: var(--acid, #bfe800);
+  color: var(--ink, #002752);
 }
 
 input:focus,
 select:focus,
 textarea:focus,
 button:focus-visible {
-  outline: 2px solid #685bc5;
+  outline: 2px solid var(--violet, #685bc5);
   outline-offset: 2px;
 }
 
 .btn-solid:hover:not(:disabled) {
-  background: #4c40a0 !important;
+  background: var(--violet-dk, #4c40a0) !important;
 }
 .btn-acid:hover:not(:disabled) {
   filter: brightness(0.95);
@@ -38,7 +38,7 @@ button:focus-visible {
 }
 
 input[type="checkbox"] {
-  accent-color: #685bc5;
+  accent-color: var(--violet, #685bc5);
 }
 ::placeholder {
   color: rgba(0, 39, 82, 0.68);
@@ -65,5 +65,42 @@ input[type="checkbox"] {
 @media (max-width: 639px) {
   .photo-lg {
     height: 130px;
+  }
+}
+
+/* Направление «Индекс» (?theme=index): техно-минимализм — моноширинный шрифт,
+   заглавные, острые углы, тонкие линии вместо теней. */
+[data-theme="index"] body {
+  font-size: 14px;
+}
+[data-theme="index"] * {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+[data-theme="index"] button,
+[data-theme="index"] .btn-solid,
+[data-theme="index"] .btn-acid,
+[data-theme="index"] .btn-outline {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 12.5px !important;
+}
+[data-theme="index"] article.card-elevated {
+  border: 1px solid #0a0a0a !important;
+}
+[data-theme="index"] .ticker-track {
+  animation: ticker 40s linear infinite;
+}
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="index"] .ticker-track {
+    animation: none;
   }
 }

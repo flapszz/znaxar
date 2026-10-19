@@ -1,3 +1,5 @@
+import { DEFAULT_THEME, THEMES } from "./themes";
+
 export const C = {
   ink: "#002752",
   paper: "#E9E4DC",
@@ -21,12 +23,54 @@ export const INK = {
 };
 
 export const RADIUS = { pill: 8, card: 14, block: 12, frame: 20, well: 10 };
-export const SHADOW_FRAME = "0 30px 80px rgba(0,39,82,.14)";
+
+// Основной стиль — DEFAULT_THEME из themes.js. ?theme=<ключ> в адресе показывает другой
+// (до закрытия вкладки), ?theme=default возвращает основной.
+function pickThemeKey() {
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get("theme");
+    if (fromUrl === "default") sessionStorage.removeItem("znaxar-theme");
+    else if (fromUrl && THEMES[fromUrl]) sessionStorage.setItem("znaxar-theme", fromUrl);
+    const saved = sessionStorage.getItem("znaxar-theme");
+    if (saved && THEMES[saved]) return saved;
+  } catch {
+    /* хранилище может быть недоступно — тогда основной стиль */
+  }
+  return DEFAULT_THEME;
+}
+
+export const THEME_KEY = pickThemeKey();
+const ACTIVE_THEME = THEMES[THEME_KEY];
+Object.assign(C, ACTIVE_THEME.C);
+Object.assign(RADIUS, ACTIVE_THEME.radius);
+{
+  const n = parseInt(C.ink.slice(1), 16);
+  const rgb = `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
+  const alpha = { 72: 0.72, 60: 0.68, 45: 0.66, 18: 0.18, 12: 0.12 };
+  for (const k of Object.keys(INK)) INK[k] = `rgba(${rgb},${alpha[k]})`;
+  const root = document.documentElement;
+  root.style.setProperty("--ink", C.ink);
+  root.style.setProperty("--paper", C.paper);
+  root.style.setProperty("--acid", C.acid);
+  root.style.setProperty("--violet", C.violet);
+  root.style.setProperty("--violet-dk", C.violetDk);
+  root.style.setProperty("--font-body", ACTIVE_THEME.body);
+  root.dataset.theme = THEME_KEY;
+  // Шрифты неосновного направления подгружаем на лету (основные уже в index.html).
+  if (THEME_KEY !== DEFAULT_THEME) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = `https://fonts.googleapis.com/css2?${ACTIVE_THEME.fonts}&display=swap`;
+    document.head.appendChild(link);
+  }
+}
+
+export const SHADOW_FRAME = `0 30px 80px ${INK[12]}`;
 export const CARD_BORDER = `1.5px solid ${INK[18]}`;
 export const DIVIDER = `2px solid ${C.ink}`;
 export const ROW_DIVIDER = `1px solid ${INK[12]}`;
 
-export const HEAD = { fontFamily: '"Lora", Georgia, serif', fontWeight: 700, letterSpacing: "-0.01em" };
+export const HEAD = ACTIVE_THEME.head;
 export const OVERLINE = {
   fontSize: 12,
   letterSpacing: "0.04em",

@@ -3,7 +3,7 @@ import { C, RADIUS } from "../constants/theme";
 const VARIANTS = {
   acid: { background: C.acid, color: C.ink },
   violet: { background: C.violet, color: C.surface },
-  neutral: { background: "#F1EEE8", color: C.ink },
+  neutral: { background: "color-mix(in srgb, var(--ink, #002752) 8%, transparent)", color: C.ink },
   danger: { background: "#FDE3DC", color: C.danger },
 };
 
