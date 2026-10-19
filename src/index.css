@@ -184,6 +184,30 @@ input[type="checkbox"] {
   }
 }
 
+/* Банка-чертёж: линии прорисовываются, подписи проявляются; без анимации стоит целиком. */
+.bp-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes bp-draw {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes bp-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .bp-draw {
+    animation: bp-draw 600ms steps(18, end) backwards;
+    animation-delay: calc(var(--i, 0) * 110ms + 150ms);
+  }
+  .bp-fade {
+    animation: bp-fade 240ms steps(3, end) backwards;
+    animation-delay: calc(var(--i, 0) * 110ms + 150ms);
+  }
+}
+
 /* ── Движение: общий вариант для заголовка и «механическая» версия для стиля «Индекс» ──
    Индекс — прибор: всё появляется ступенями (steps), числа при изменении вспыхивают,
    вместо мягких подпрыгиваний. Без анимации (prefers-reduced-motion) — всё статично. */

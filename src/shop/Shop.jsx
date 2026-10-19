@@ -4,6 +4,7 @@ import { Btn } from "../components/Btn";
 import { ContactLine } from "../components/ContactLine";
 import { ProductPhoto } from "../components/ProductPhoto";
 import { Plaque } from "../components/Plaque";
+import { JarBlueprint } from "../components/JarBlueprint";
 import { Ticker } from "../components/Ticker";
 import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, SHADOW_FRAME, THEME_KEY } from "../constants/theme";
 import { SELLER } from "../data/seller";
@@ -426,15 +427,19 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
           {screen === "done" && (
             <div className="flex flex-wrap gap-8 items-center">
               <div style={{ flex: "1 1 320px" }}>
-                <img
-                  src="/img/hero-herbs.webp"
-                  alt=""
-                  aria-hidden="true"
-                  width="96"
-                  height="143"
-                  className="anim-grow"
-                  style={{ width: 96, height: "auto", "--d": "100ms" }}
-                />
+                {THEME_KEY === "index" ? (
+                  <JarBlueprint style={{ width: 120, height: "auto", color: C.ink }} />
+                ) : (
+                  <img
+                    src="/img/hero-herbs.webp"
+                    alt=""
+                    aria-hidden="true"
+                    width="96"
+                    height="143"
+                    className="anim-grow"
+                    style={{ width: 96, height: "auto", "--d": "100ms" }}
+                  />
+                )}
                 <h1 className="mt-3 anim-type" style={{ ...HEAD, fontSize: "clamp(28px,5vw,42px)", color: C.ink, "--d": "450ms" }}>
                   Заявка № {doneId} принята
                 </h1>
@@ -523,15 +528,19 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     БАД. Не является лекарственным средством.
                   </p>
                 </div>
-                <img
-                  src="/img/hero-herbs.webp"
-                  alt=""
-                  aria-hidden="true"
-                  width="215"
-                  height="320"
-                  className="hidden md:block shrink-0 anim-grow"
-                  style={{ width: 215, height: "auto" }}
-                />
+                {THEME_KEY === "index" ? (
+                  <JarBlueprint className="hidden md:block shrink-0" style={{ width: 250, height: "auto", color: C.ink }} />
+                ) : (
+                  <img
+                    src="/img/hero-herbs.webp"
+                    alt=""
+                    aria-hidden="true"
+                    width="215"
+                    height="320"
+                    className="hidden md:block shrink-0 anim-grow"
+                    style={{ width: 215, height: "auto" }}
+                  />
+                )}
               </section>
               {THEME_KEY === "index" && <Ticker />}
 
