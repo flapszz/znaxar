@@ -33,8 +33,10 @@ button:focus-visible {
 .card-elevated {
   transition: transform 150ms ease;
 }
-.card-elevated:hover {
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .card-elevated:hover {
+    transform: translateY(-2px);
+  }
 }
 
 input[type="checkbox"] {
@@ -55,7 +57,7 @@ input[type="checkbox"] {
 }
 @media (min-width: 640px) {
   .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
@@ -156,5 +158,28 @@ input[type="checkbox"] {
   }
   button {
     transition: transform 120ms ease-out;
+  }
+}
+
+/* ── Касание ──
+   На телефонах и планшетах (грубый указатель): цели нажатия от 44 px, а поля ввода
+   ≥16 px — иначе iPhone приближает страницу при фокусе. */
+@media (pointer: coarse) {
+  button,
+  select,
+  a.btn-touch {
+    min-height: 44px;
+  }
+  button[aria-label] {
+    min-width: 44px;
+  }
+  input:not([type="checkbox"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+  input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
   }
 }

@@ -157,7 +157,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         style={{ borderRadius: RADIUS.frame, overflow: "clip", boxShadow: SHADOW_FRAME, background: C.surface }}
       >
         {screen === "catalog" && (
-          <div className="sm:hidden p-4" style={{ background: C.ink, color: C.surface }}>
+          <div className="lg:hidden p-4" style={{ background: C.ink, color: C.surface }}>
             <div className="flex items-center gap-2 mb-3">
               <Activity size={20} color={C.acid} strokeWidth={2.25} />
               <span style={{ ...HEAD, fontSize: 18 }}>Знахарь</span>
@@ -234,7 +234,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         <div className="flex flex-wrap flex-1">
         {screen === "catalog" && (
           <aside
-            className="hidden sm:block"
+            className="hidden lg:block"
             style={{ flex: "1 1 240px", maxWidth: 260, background: C.ink, color: C.surface }}
           >
             <div className="sticky top-6 flex flex-col gap-6 p-5" style={{ minHeight: "calc(100vh - 3rem)", maxHeight: "100vh", overflowY: "auto" }}>
@@ -484,7 +484,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   </p>
 
                   <form
-                    className="hidden sm:flex items-center gap-2 mt-6 pl-4 pr-1.5 py-1.5 max-w-xl"
+                    className="hidden lg:flex items-center gap-2 mt-6 pl-4 pr-1.5 py-1.5 max-w-xl"
                     style={{ borderRadius: RADIUS.pill, background: C.card, border: `1.5px solid ${C.ink}` }}
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -566,7 +566,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
                     aria-label="Бренд"
-                    className="sm:hidden px-3 py-2"
+                    className="lg:hidden px-3 py-2"
                     style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, background: C.surface, fontSize: 13, color: C.ink }}
                   >
                     <option value="Все">Все бренды</option>
@@ -760,7 +760,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         <div
           className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all anim-slide-up`}
           style={{
-            bottom: cookieBannerVisible ? 76 : 16,
+            bottom: `calc(${cookieBannerVisible ? 76 : 16}px + env(safe-area-inset-bottom, 0px))`,
             background: C.ink,
             color: C.surface,
             borderRadius: RADIUS.pill,
