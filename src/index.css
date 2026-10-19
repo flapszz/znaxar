@@ -248,8 +248,16 @@ input[type="checkbox"] {
     animation: idx-scan 650ms steps(16, end) backwards;
     animation-delay: var(--d, 150ms);
   }
-  /* В стиле «Индекс» цифры и сердечко не анимируем: вспышка фоном выглядела как белый квадрат. */
-  [data-theme="index"] .anim-bump,
+  /* Цифра в корзине: новая цифра ступенчато выезжает снизу на место, как на механическом табло.
+     Без фона и рамок (вспышка фоном выглядела как белый квадрат). */
+  @keyframes idx-tick {
+    from { opacity: 0; transform: translateY(55%); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  [data-theme="index"] .anim-bump {
+    display: inline-block;
+    animation: idx-tick 200ms steps(4, end);
+  }
   [data-theme="index"] .anim-pop {
     animation: none;
   }
