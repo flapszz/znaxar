@@ -377,7 +377,7 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
         <div style={{ fontSize: 10, color: INK[60], marginBottom: 8 }}>
           КАК УВИДИТ ПОКУПАТЕЛЬ
         </div>
-        <div className="rounded-2xl p-4" style={{ background: C.card, border: `1px solid ${INK[12]}` }}>
+        <div className="shop-preview rounded-2xl p-4" style={{ background: C.card, border: `1px solid ${INK[12]}` }}>
           <ProductDetail p={{ ...p, sku: isNew ? skuTrimmed || "—" : p.sku, ...clean, imageUrl }} onAdd={() => {}} />
         </div>
       </div>

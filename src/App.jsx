@@ -155,7 +155,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ background: C.paper, color: C.ink, minHeight: "100vh" }}>
+    <div className={mode === "admin" ? "admin-root" : ""} style={{ background: C.paper, color: C.ink, minHeight: "100vh" }}>
       <CookieBanner onVisibleChange={setCookieVisible} />
 
       {mode === "admin" && (

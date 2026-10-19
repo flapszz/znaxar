@@ -285,3 +285,15 @@ input[type="checkbox"] {
     animation: skeleton-pulse 700ms steps(4, end) infinite alternate;
   }
 }
+
+/* ── Админка: спокойный вид ──
+   Владельцу — обычный шрифт и обычный регистр, без «технического» оформления витрины.
+   Предпросмотр карточки (.shop-preview) остаётся таким, каким его увидит покупатель. */
+.admin-root *:not(.shop-preview, .shop-preview *) {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+.admin-root button:not(.shop-preview *) {
+  font-size: 14px !important;
+}
