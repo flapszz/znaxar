@@ -19,6 +19,16 @@ import { sitemapRouter } from "./routes/sitemap.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProduction = process.env.NODE_ENV === "production";
 
+// Без секрета сессий (SESSION_SECRET) вход в админку не работает, а каждый запрос падает с 500.
+// На боевом сервере лучше остановиться сразу с понятным сообщением, чем отдавать людям «Internal Server Error».
+if (process.env.NODE_ENV === "production" && !String(process.env.SESSION_SECRET || "").trim()) {
+  console.error(
+    "ОШИБКА НАСТРОЙКИ: не задана переменная SESSION_SECRET. В Render откройте сервис → Environment → " +
+      "добавьте SESSION_SECRET (любая длинная случайная строка, например из команды `openssl rand -hex 32`) и сохраните."
+  );
+  process.exit(1);
+}
+
 const app = express();
 // Сжатие ответов (JS ~320 КБ превращается в ~95 КБ) — заметно быстрее на мобильном интернете.
 app.use(compression());
