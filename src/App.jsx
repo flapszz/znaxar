@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Activity } from "lucide-react";
 import { Admin } from "./admin/Admin";
+import { CatalogSkeleton } from "./components/CatalogSkeleton";
 import { AdminGate } from "./admin/AdminGate";
 import { AboutContent } from "./components/AboutContent";
 import { ConsentContent } from "./components/ConsentContent";
@@ -180,9 +181,7 @@ export default function App() {
           {loadError}
         </div>
       ) : products === null ? (
-        <div className="max-w-5xl mx-auto px-5 py-16" style={{ color: INK[60], fontSize: 13 }}>
-          Загружаем товары…
-        </div>
+        <CatalogSkeleton />
       ) : mode === "shop" ? (
         <Shop
           products={products}

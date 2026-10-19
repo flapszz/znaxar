@@ -270,3 +270,18 @@ input[type="checkbox"] {
     outline-offset: -1px;
   }
 }
+
+@media (pointer: coarse) {
+  .kbd-hint {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes skeleton-pulse {
+    from { opacity: 1; }
+    to { opacity: 0.55; }
+  }
+  .skeleton-pulse {
+    animation: skeleton-pulse 700ms steps(4, end) infinite alternate;
+  }
+}

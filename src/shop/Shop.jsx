@@ -59,6 +59,8 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const gridRef = useRef(null);
+  const heroSearchRef = useRef(null);
+  const [doneAt, setDoneAt] = useState("");
 
   useEffect(() => {
     fetch("/api/collections")
@@ -142,6 +144,35 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
     window.scrollTo({ top: 0 });
     window.history.pushState({}, "", "/checkout");
   };
+  // «/» — быстрый переход в поиск, как в терминале и на больших сайтах.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName) || document.activeElement?.isContentEditable) return;
+      const target = [heroSearchRef.current, ...document.querySelectorAll('input[placeholder^="Искать"]')].find((el) => el && el.offsetParent);
+      if (!target) return;
+      e.preventDefault();
+      target.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Число позиций в корзине в заголовке вкладки: «(2) Знахарь» — видно, даже если вкладку свернули.
+  const cartCount = cart.reduce((n, i) => n + i.qty, 0);
+  useEffect(() => {
+    const apply = () => {
+      const base = document.title.replace(/^\(\d+\)\s*/, "");
+      const next = cartCount > 0 ? `(${cartCount}) ${base}` : base;
+      if (document.title !== next) document.title = next;
+    };
+    apply();
+    const el = document.querySelector("title");
+    const mo = new MutationObserver(apply);
+    if (el) mo.observe(el, { childList: true, characterData: true, subtree: true });
+    return () => mo.disconnect();
+  }, [cartCount]);
+
   const backToCatalog = () => {
     setScreen("catalog");
     window.scrollTo({ top: 0 });
@@ -418,6 +449,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               onSubmit={async (form) => {
                 const id = await submitOrder(form);
                 setDoneId(id);
+                setDoneAt(new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }));
                 setScreen("done");
                 window.scrollTo({ top: 0 });
               }}
@@ -443,6 +475,11 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 <h1 className="mt-3 anim-type" style={{ ...HEAD, fontSize: "clamp(28px,5vw,42px)", color: C.ink, "--d": "450ms" }}>
                   Заявка № {doneId} принята
                 </h1>
+                {doneAt && (
+                  <p className="mt-1 anim-rise" style={{ fontSize: 13, color: INK[72], "--d": "520ms" }}>
+                    Время приёма: {doneAt}
+                  </p>
+                )}
                 <p className="mt-3 max-w-sm anim-rise" style={{ fontSize: 15, color: INK[60], "--d": "560ms" }}>
                   Перезвоним в рабочее время, подтвердим наличие и выберем пункт выдачи.
                 </p>
@@ -498,6 +535,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   >
                     <Search size={18} color={INK[72]} />
                     <input
+                      ref={heroSearchRef}
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Что ищете? Например, магний или сон"
@@ -505,6 +543,11 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                       className="flex-1 bg-transparent outline-none py-2"
                       style={{ fontSize: 15, color: C.ink }}
                     />
+                    {!query && (
+                      <kbd className="kbd-hint px-2 py-0.5" title="Нажмите / — курсор сразу попадёт в поиск" style={{ fontSize: 12, border: `1px solid ${INK[18]}`, color: INK[72], borderRadius: 4 }}>
+                        /
+                      </kbd>
+                    )}
                     <Btn variant="acid" type="submit">
                       Найти
                     </Btn>
@@ -594,7 +637,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
               {visible.length === 0 ? (
                 <div className="py-16 text-center" style={{ color: INK[72] }}>
-                  <p>{query.trim() ? `По запросу «${query.trim()}» ничего не нашлось.` : "В этой категории пока ничего нет."}</p>
+                  <p>{query.trim() ? `По запросу «${query.trim()}» на складе ничего нет: 0 позиций.` : "В этой категории пока 0 позиций."}</p>
                   <button
                     onClick={() => {
                       setQuery("");

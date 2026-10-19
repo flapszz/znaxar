@@ -49,7 +49,7 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
   if (cart.length === 0) {
     return (
       <div>
-        <h1 style={{ ...HEAD, fontSize: 24, color: C.ink }}>Корзина пуста</h1>
+        <h1 style={{ ...HEAD, fontSize: 24, color: C.ink }}>Корзина: 0 позиций</h1>
         <p className="mt-2 mb-5" style={{ fontSize: 14, color: INK[60] }}>
           Добавьте товары из каталога, чтобы оставить заявку.
         </p>

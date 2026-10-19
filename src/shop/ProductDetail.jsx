@@ -55,7 +55,6 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
             <span style={{ ...HEAD, fontSize: 34, whiteSpace: "nowrap" }}>{money(p.price)}</span>
             <Badge variant={stockState(p.stock) === "out" ? "danger" : stockState(p.stock) === "low" ? "acid" : "neutral"}>
               {STOCK_LABEL[stockState(p.stock)]}
-              {p.stock > 0 && p.stock <= 10 ? `, ${p.stock} шт` : ""}
             </Badge>
             {qtyInCart > 0 && onSetQty ? (
               <div className="flex items-center gap-3">
