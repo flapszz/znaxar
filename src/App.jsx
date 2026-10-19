@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Activity } from "lucide-react";
-import { Admin } from "./admin/Admin";
 import { Btn } from "./components/Btn";
 import { CatalogSkeleton } from "./components/CatalogSkeleton";
-import { AdminGate } from "./admin/AdminGate";
 import { AboutContent } from "./components/AboutContent";
 import { ConsentContent } from "./components/ConsentContent";
 import { CookieBanner } from "./components/CookieBanner";
@@ -13,6 +11,14 @@ import { PublicationsPage } from "./components/PublicationsPage";
 import { C, HEAD, INK } from "./constants/theme";
 import { LegalPage } from "./legal/LegalPage";
 import { Shop } from "./shop/Shop";
+import { loadCatalogMeta } from "./utils/catalogMeta";
+
+// Админка нужна одному владельцу — покупателям её код не отдаём (грузится отдельным файлом).
+const Admin = lazy(() => import("./admin/Admin").then((m) => ({ default: m.Admin })));
+const AdminGate = lazy(() => import("./admin/AdminGate").then((m) => ({ default: m.AdminGate })));
+
+// Запросы за категориями и брендами уходят сразу, вместе с запросом каталога.
+loadCatalogMeta();
 
 const STATIC_ROUTES = {
   "/privacy": {
@@ -209,9 +215,11 @@ export default function App() {
           cookieBannerVisible={cookieVisible}
         />
       ) : (
-        <AdminGate>
-          <Admin products={products} bySku={bySku} refreshProducts={loadProducts} />
-        </AdminGate>
+        <Suspense fallback={<div className="max-w-5xl mx-auto px-5 py-16" style={{ color: INK[60], fontSize: 13 }}>Загружаем админку…</div>}>
+          <AdminGate>
+            <Admin products={products} bySku={bySku} refreshProducts={loadProducts} />
+          </AdminGate>
+        </Suspense>
       )}
     </div>
   );

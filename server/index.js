@@ -1,4 +1,5 @@
 import "dotenv/config";
+import compression from "compression";
 import express from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
@@ -19,6 +20,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProduction = process.env.NODE_ENV === "production";
 
 const app = express();
+// Сжатие ответов (JS ~320 КБ превращается в ~95 КБ) — заметно быстрее на мобильном интернете.
+app.use(compression());
 const PgSession = connectPgSimple(session);
 
 // За прокси хостинга (Render и т.п.) — иначе secure-куки и req.ip работают неверно.
@@ -54,6 +57,8 @@ app.use(sitemapRouter);
 // отдельного статического хостинга не заводим, чтобы уложиться в один бесплатный сервис.
 if (isProduction) {
   const DIST_DIR = path.join(__dirname, "..", "dist");
+  // Файлы в /assets имеют хэш в названии и при изменении получают новое имя — их можно кешировать на год.
+  app.use("/assets", express.static(path.join(DIST_DIR, "assets"), { maxAge: "1y", immutable: true }));
   app.use(express.static(DIST_DIR));
   app.get(/^(?!\/api).*/, (req, res) => {
     res.sendFile(path.join(DIST_DIR, "index.html"));

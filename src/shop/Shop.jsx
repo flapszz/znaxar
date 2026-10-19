@@ -8,6 +8,7 @@ import { JarBlueprint } from "../components/JarBlueprint";
 import { Ticker } from "../components/Ticker";
 import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, SHADOW_FRAME, THEME_KEY } from "../constants/theme";
 import { SELLER } from "../data/seller";
+import { loadCatalogMeta } from "../utils/catalogMeta";
 import { STOCK_LABEL, money, stockState } from "../utils/format";
 import { useFavorites } from "../utils/useFavorites";
 import { setProductJsonLd, setSeo } from "../utils/seo";
@@ -63,18 +64,11 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
   const [doneAt, setDoneAt] = useState("");
 
   useEffect(() => {
-    fetch("/api/collections")
-      .then((r) => (r.ok ? r.json() : []))
-      .then(setCollections)
-      .catch(() => setCollections([]));
-    fetch("/api/categories")
-      .then((r) => (r.ok ? r.json() : []))
-      .then(setCategories)
-      .catch(() => setCategories([]));
-    fetch("/api/brands")
-      .then((r) => (r.ok ? r.json() : []))
-      .then(setBrands)
-      .catch(() => setBrands([]));
+    loadCatalogMeta().then(([cols, cats, brs]) => {
+      setCollections(cols);
+      setCategories(cats);
+      setBrands(brs);
+    });
   }, []);
 
   // Кнопки «назад/вперёд» браузера должны переключать экран, а не просто
