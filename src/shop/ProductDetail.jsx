@@ -39,7 +39,7 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
                 style={{ width: 36, height: 36, borderRadius: 999, border: `1.5px solid ${INK[18]}` }}
                 aria-label={isFavorite ? "Убрать из избранного" : "В избранное"}
               >
-                <Heart size={17} color={isFavorite ? C.danger : C.ink} fill={isFavorite ? C.danger : "none"} />
+                <Heart size={17} className={isFavorite ? "anim-pop" : ""} color={isFavorite ? C.danger : C.ink} fill={isFavorite ? C.danger : "none"} />
               </button>
             )}
           </div>
@@ -68,7 +68,7 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
                   >
                     <Minus size={16} />
                   </button>
-                  <span style={{ minWidth: 28, textAlign: "center", fontWeight: 600 }}>{qtyInCart}</span>
+                  <span key={qtyInCart} className="anim-bump" style={{ minWidth: 28, textAlign: "center", fontWeight: 600 }}>{qtyInCart}</span>
                   <button
                     onClick={() => onSetQty(Math.min(qtyInCart + 1, p.stock))}
                     disabled={qtyInCart >= p.stock}

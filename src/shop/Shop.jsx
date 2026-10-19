@@ -364,7 +364,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
           </aside>
         )}
 
-        <div className={`p-5 sm:p-8 ${count > 0 && screen === "catalog" ? "pb-28" : ""}`} style={{ flex: "9999 1 560px", minWidth: 0 }}>
+        <div key={screen + (openSku || "")} className={`screen-in p-5 sm:p-8 ${count > 0 && screen === "catalog" ? "pb-28" : ""}`} style={{ flex: "9999 1 560px", minWidth: 0 }}>
           {screen !== "catalog" && (
             <div className="flex items-center justify-between gap-3 mb-6 pb-4" style={{ borderBottom: `1px solid ${INK[12]}` }}>
               <button onClick={backToCatalog} className="flex items-center gap-2" aria-label="Знахарь — на главную">
@@ -427,14 +427,22 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
           {screen === "done" && (
             <div className="flex flex-wrap gap-8 items-center">
               <div style={{ flex: "1 1 320px" }}>
-                <div style={{ ...OVERLINE, color: C.violet }}>Готово</div>
-                <h1 className="mt-2" style={{ ...HEAD, fontSize: "clamp(28px,5vw,42px)", color: C.ink }}>
+                <img
+                  src="/img/hero-herbs.webp"
+                  alt=""
+                  aria-hidden="true"
+                  width="96"
+                  height="143"
+                  className="anim-grow"
+                  style={{ width: 96, height: "auto", "--d": "100ms" }}
+                />
+                <h1 className="mt-3 anim-rise" style={{ ...HEAD, fontSize: "clamp(28px,5vw,42px)", color: C.ink, "--d": "450ms" }}>
                   Заявка № {doneId} принята
                 </h1>
-                <p className="mt-3 max-w-sm" style={{ fontSize: 15, color: INK[60] }}>
+                <p className="mt-3 max-w-sm anim-rise" style={{ fontSize: 15, color: INK[60], "--d": "560ms" }}>
                   Перезвоним в рабочее время, подтвердим наличие и выберем пункт выдачи.
                 </p>
-                <div className="mt-5">
+                <div className="mt-5 anim-rise" style={{ "--d": "660ms" }}>
                   <Btn variant="acid" onClick={backToCatalog}>
                     Вернуться в каталог
                   </Btn>
@@ -443,7 +451,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               <div className="p-5" style={{ flex: "1 1 260px", background: C.ink, color: C.surface, borderRadius: RADIUS.card }}>
                 {["Перезвоним в рабочее время", "Подтвердим наличие и пункт выдачи", "Соберём и передадим в СДЭК", "Пришлём трек-номер"].map(
                   (step, i) => (
-                    <div key={step} className="flex items-start gap-3 py-2">
+                    <div key={step} className="flex items-start gap-3 py-2 anim-rise" style={{ "--d": `${700 + i * 140}ms` }}>
                       <span
                         className="flex items-center justify-center shrink-0"
                         style={{ width: 22, height: 22, borderRadius: 999, background: C.acid, color: C.ink, fontSize: 12, fontWeight: 700 }}
@@ -519,7 +527,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   aria-hidden="true"
                   width="215"
                   height="320"
-                  className="hidden md:block shrink-0"
+                  className="hidden md:block shrink-0 anim-grow"
                   style={{ width: 215, height: "auto" }}
                 />
               </section>
@@ -592,14 +600,14 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 </div>
               ) : (
                 <div className="mt-5 grid gap-3 sm:gap-5 product-grid">
-                  {visible.map((p) => {
+                  {visible.map((p, idx) => {
                     const state = stockState(p.stock);
                     const inCart = cart.find((i) => i.sku === p.sku);
                     return (
                       <article
                         key={p.sku}
-                        className="card-elevated p-4 flex flex-col"
-                        style={{ borderRadius: RADIUS.card, background: C.card, border: `1.5px solid ${INK[12]}` }}
+                        className="card-elevated anim-rise p-4 flex flex-col"
+                        style={{ "--d": `${Math.min(idx, 7) * 40}ms`, borderRadius: RADIUS.card, background: C.card, border: `1.5px solid ${INK[12]}` }}
                       >
                         <div className="relative">
                           <button onClick={() => openProduct(p.sku)} className="text-left w-full">
@@ -616,6 +624,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                           >
                             <Heart
                               size={16}
+                              className={favorites.includes(p.sku) ? "anim-pop" : ""}
                               color={favorites.includes(p.sku) ? C.danger : C.ink}
                               fill={favorites.includes(p.sku) ? C.danger : "none"}
                             />
@@ -637,7 +646,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                               style={{ borderRadius: RADIUS.pill, background: C.ink, padding: "6px 6px 6px 14px" }}
                             >
                               <span style={{ color: C.surface, fontSize: 13, fontWeight: 600 }}>
-                                {inCart.qty} шт<span className="hidden sm:inline"> в корзине</span>
+                                <span key={inCart.qty} className="inline-block anim-bump">{inCart.qty} шт</span><span className="hidden sm:inline"> в корзине</span>
                               </span>
                               <div className="flex items-center gap-1">
                                 <button
@@ -738,7 +747,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
       {screen === "catalog" && count > 0 && (
         <div
-          className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all`}
+          className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all anim-slide-up`}
           style={{
             bottom: cookieBannerVisible ? 76 : 16,
             background: C.ink,
@@ -747,7 +756,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
             boxShadow: SHADOW_FRAME,
           }}
         >
-          <span style={{ fontSize: 13 }}>
+          <span key={`${count}-${total}`} className="anim-bump" style={{ fontSize: 13 }}>
             {count} поз. · {money(total)}
           </span>
           <Btn variant="acid" onClick={goCheckout}>

@@ -33,7 +33,7 @@ export function CookieBanner({ onVisibleChange }) {
 
   return (
     <div
-      className="fixed bottom-0 inset-x-0 z-50 flex flex-wrap items-center justify-center gap-3 px-5 py-3 text-center"
+      className="anim-slide-up fixed bottom-0 inset-x-0 z-50 flex flex-wrap items-center justify-center gap-3 px-5 py-3 text-center"
       style={{ background: C.ink, boxShadow: SHADOW_FRAME }}
     >
       <span style={{ fontSize: 12.5, color: "rgba(251,248,243,.85)", maxWidth: 640 }}>
