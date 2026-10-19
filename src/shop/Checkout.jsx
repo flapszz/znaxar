@@ -194,7 +194,7 @@ export function Checkout({ cart: rawCart, bySku, setQty, total, onBack, onSubmit
                 return (
                   <div key={i.sku} className="flex items-center gap-3 py-2.5" style={{ borderTop: `1px solid rgba(251,248,243,.12)` }}>
                     <div className="w-12 shrink-0">
-                      <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} size="sm" />
+                      <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} size="sm" category={p.category} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div style={{ fontSize: 13 }}>{p.title}</div>

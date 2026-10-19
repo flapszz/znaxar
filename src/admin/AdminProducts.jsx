@@ -218,7 +218,7 @@ export function AdminProducts({ products, refreshProducts }) {
               style={{ background: C.card, borderTop: i === 0 ? "none" : `1px solid ${INK[12]}` }}
             >
               <div className="w-12 shrink-0">
-                <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} size="sm" />
+                <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} size="sm" category={p.category} />
               </div>
               <div className="flex-1 min-w-0">
                 <div style={{ fontSize: 14 }}>{p.title || p.stockName || p.sku}</div>

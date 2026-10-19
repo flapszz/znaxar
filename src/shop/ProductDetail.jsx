@@ -23,7 +23,7 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
             style={{ borderRadius: RADIUS.card, background: tintForSku(p.sku) }}
           >
             <div className="w-full">
-              <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} badge={p.badge} height={300} />
+              <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} badge={p.badge} height={300} category={p.category} />
             </div>
           </div>
 
@@ -145,7 +145,7 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
           <div className="mt-4 grid gap-4 grid-cols-2 sm:grid-cols-4">
             {related.map((r) => (
               <button key={r.sku} onClick={() => onOpen && onOpen(r.sku)} className="text-left" title={r.title}>
-                <ProductPhoto sku={r.sku} imageUrl={r.thumbUrl || r.imageUrl} alt={r.title} size="sm" />
+                <ProductPhoto sku={r.sku} imageUrl={r.thumbUrl || r.imageUrl} alt={r.title} size="sm" category={r.category} />
                 <div className="mt-2" style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>
                   {r.title}
                 </div>

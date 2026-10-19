@@ -1,5 +1,6 @@
 import { BadgePercent, Flame, Leaf, Sparkles } from "lucide-react";
-import { C, PRODUCT_BADGE_STYLE, RADIUS, tintForSku } from "../constants/theme";
+import { CategoryArt } from "./CategoryArt";
+import { C, INK, PRODUCT_BADGE_STYLE, RADIUS, THEME_KEY, tintForSku } from "../constants/theme";
 
 const BADGE_ICON = {
   "Хит продаж": Flame,
@@ -22,7 +23,7 @@ function BadgeOverlay({ badge }) {
   );
 }
 
-export function ProductPhoto({ sku, imageUrl, alt = "", badge, size = "lg", height }) {
+export function ProductPhoto({ sku, imageUrl, alt = "", badge, size = "lg", height, category }) {
   const big = size === "lg";
   const tint = tintForSku(sku);
   const showBadge = big && badge;
@@ -50,7 +51,11 @@ export function ProductPhoto({ sku, imageUrl, alt = "", badge, size = "lg", heig
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
-          <Leaf size={big ? 32 : 18} color={C.ink} strokeWidth={1.5} style={{ opacity: 0.35 }} />
+          {THEME_KEY === "index" ? (
+            <CategoryArt category={category} style={{ width: big ? "58%" : "66%", height: "auto", maxHeight: "86%", color: INK[72] }} />
+          ) : (
+            <Leaf size={big ? 32 : 18} color={C.ink} strokeWidth={1.5} style={{ opacity: 0.35 }} />
+          )}
         </div>
       )}
       {showBadge && <BadgeOverlay badge={badge} />}

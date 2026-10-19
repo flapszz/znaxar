@@ -179,7 +179,7 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
         <Field label="Фото товара" hint="JPEG, PNG или WebP, до 5 МБ.">
           <div className="flex items-center gap-3">
             <div className="w-16 shrink-0">
-              <ProductPhoto sku={p.sku || "new"} imageUrl={imageUrl} alt={f.title} size="sm" />
+              <ProductPhoto sku={p.sku || "new"} imageUrl={imageUrl} alt={f.title} size="sm" category={f.category} />
             </div>
             <div className="flex-1">
               <input

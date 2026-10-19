@@ -622,7 +622,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                       >
                         <div className="relative">
                           <button onClick={() => openProduct(p.sku)} className="text-left w-full">
-                            <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} badge={p.badge} />
+                            <ProductPhoto sku={p.sku} imageUrl={p.thumbUrl || p.imageUrl} alt={p.title} badge={p.badge} category={p.category} />
                             <h3 className="mt-3" style={{ ...HEAD, fontSize: 16, color: C.ink }}>
                               {p.title}
                             </h3>
