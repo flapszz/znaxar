@@ -30,10 +30,10 @@ export function AdminGate({ children }) {
         setStatus("in");
       } else {
         const data = await r.json().catch(() => ({}));
-        setError(data.error || "Не удалось войти.");
+        setError(data.error || "Не удалось войти. Проверьте логин и пароль.");
       }
     } catch {
-      setError("Сервер недоступен. Проверьте, что запущен API (npm run server).");
+      setError("Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.");
     } finally {
       setSubmitting(false);
     }

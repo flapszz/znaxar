@@ -46,7 +46,7 @@ export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
   };
 
   const removeOrder = async (id) => {
-    if (!window.confirm(`Удалить заявку № ${id}? Это действие необратимо.`)) return;
+    if (!window.confirm(`Удалить заявку № ${id}? Имя, телефон и состав заказа будут стёрты, восстановить их нельзя.`)) return;
     await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "same-origin" }).catch(() => {});
     refreshOrders();
   };
@@ -155,7 +155,9 @@ export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
                       </div>
                     )}
                     <div className="mt-1.5" style={{ fontSize: 12, color: INK[45] }}>
-                      Согласие на ПДн: {o.consentGiven ? `есть, ${o.consentAt} (${o.consentVersion})` : "нет"}
+                      <span title={o.consentVersion ? `Версия текста согласия: ${o.consentVersion}` : undefined}>
+                        Согласие на обработку данных: {o.consentGiven ? `дано ${o.consentAt}` : "не получено"}
+                      </span>
                     </div>
                   </div>
                   <div className="sm:text-right">
@@ -213,7 +215,7 @@ export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
                 </div>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                   {/* INTEGRATION: кнопка создания накладной в СДЭК */}
-                  <span style={{ fontSize: 12, color: INK[60] }}>Оформить в СДЭК — позже</span>
+                  <span style={{ fontSize: 12, color: INK[60] }}>Накладную СДЭК можно будет создать здесь позже</span>
                   <button onClick={() => removeOrder(o.id)} style={{ fontSize: 13, color: C.danger }}>
                     Удалить заявку
                   </button>

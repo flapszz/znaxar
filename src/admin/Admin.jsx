@@ -8,6 +8,15 @@ import { AdminProducts } from "./AdminProducts";
 import { AdminPublications } from "./AdminPublications";
 import { Toast } from "./Toast";
 
+// «1 новая», «2 новые», «5 новых»
+function pluralNew(n) {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return "новая";
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "новые";
+  return "новых";
+}
+
 export function Admin({ products, bySku, refreshProducts }) {
   const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState(null); // null = ещё грузится
@@ -39,7 +48,7 @@ export function Admin({ products, bySku, refreshProducts }) {
     <div className="max-w-5xl mx-auto px-5 py-6">
       <div className="flex gap-1.5 mb-6 overflow-x-auto sm:flex-wrap sm:overflow-visible pb-1" style={{ scrollbarWidth: "none" }}>
         {[
-          ["orders", newCount > 0 ? `Заявки · ${newCount} новых` : "Заявки"],
+          ["orders", newCount > 0 ? `Заявки · ${newCount} ${pluralNew(newCount)}` : "Заявки"],
           ["products", `Товары (${products.length})`],
           ["categories", "Категории"],
           ["brands", "Бренды"],

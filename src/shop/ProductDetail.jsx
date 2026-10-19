@@ -84,7 +84,7 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
               </div>
             ) : (
               <Btn variant="acid" onClick={onAdd} disabled={!p.stock}>
-                {!p.stock ? "Закончился" : "В корзину"}
+                {!p.stock ? "Недоступно" : "В корзину"}
               </Btn>
             )}
           </div>

@@ -256,7 +256,7 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
           </Field>
         </div>
 
-        <Field label="Бейдж на карточке" hint="Необязательно — акцентная плашка поверх фото на витрине.">
+        <Field label="Метка на карточке" hint="Необязательно. Цветная метка поверх фото в каталоге: «Хит продаж», «Новинка» или «Акция». Ставьте «Акцию» только когда она действительно идёт.">
           <select value={f.badge} onChange={upd("badge")} className="w-full px-3 py-2 rounded-lg" style={inputStyle}>
             <option value="">Нет</option>
             {PRODUCT_BADGES.map((b) => (
@@ -284,7 +284,7 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
           <input value={f.usage} onChange={upd("usage")} className="w-full px-3 py-2 rounded-lg" style={inputStyle} />
         </Field>
 
-        <Field label="Номер СГР" hint="Без него товар нельзя показывать на сайте.">
+        <Field label="Номер СГР" hint="Номер свидетельства о госрегистрации — он есть на упаковке. Без него товар нельзя показывать на сайте.">
           <input
             value={f.sgr}
             onChange={upd("sgr")}

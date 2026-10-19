@@ -51,7 +51,7 @@ export function AdminPublications({ type, singular }) {
   };
 
   const remove = async (id) => {
-    if (!window.confirm("Удалить без возможности восстановить?")) return;
+    if (!window.confirm(type === "news" ? "Удалить эту новость? Восстановить её будет нельзя." : "Удалить эту статью? Восстановить её будет нельзя.")) return;
     await fetch(`/api/publications/${type}/${id}`, { method: "DELETE", credentials: "same-origin" });
     refresh();
   };

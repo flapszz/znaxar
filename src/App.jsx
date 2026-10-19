@@ -84,7 +84,7 @@ export default function App() {
         setProducts(data);
         setLoadError("");
       })
-      .catch(() => setLoadError("Не удалось загрузить товары. Проверьте, что запущен API (npm run server)."));
+      .catch(() => setLoadError("Не удалось загрузить каталог. Обновите страницу или зайдите чуть позже."));
 
   useEffect(() => {
     loadProducts();

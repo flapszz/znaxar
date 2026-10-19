@@ -154,14 +154,14 @@ export function AdminProducts({ products, refreshProducts, notify }) {
             className="inline-flex items-center px-4 py-2.5"
             style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, color: C.ink, fontSize: 13 }}
           >
-            Скачать таблицу
+            Скачать таблицу цен
           </a>
           <label style={{ fontSize: 13 }}>
             <span
               className="inline-flex items-center px-4 py-2.5"
               style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, color: C.ink, cursor: "pointer" }}
             >
-              {importing ? "Загружаем…" : "Загрузить таблицу"}
+              {importing ? "Загружаем…" : "Загрузить таблицу цен"}
             </span>
             <input type="file" accept=".xlsx" onChange={importPrices} disabled={importing} style={{ display: "none" }} />
           </label>

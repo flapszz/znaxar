@@ -590,7 +590,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
               <div ref={gridRef} className="mt-8 flex items-baseline justify-between flex-wrap gap-2">
                 <h2 style={{ ...HEAD, fontSize: 20, color: C.ink }}>
-                  {cat === "Все" ? "Весь склад" : activeCollection ? activeCollection.name : cat}
+                  {cat === "Все" ? "Все товары" : activeCollection ? activeCollection.name : cat}
                 </h2>
                 <span style={{ fontSize: 12, color: INK[60] }}>{visible.length} позиций</span>
               </div>
@@ -734,7 +734,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                             </div>
                           ) : (
                             <Btn variant="acid" full disabled={p.stock === 0} onClick={() => addToCart(p.sku)}>
-                              {p.stock === 0 ? "Закончился" : "В корзину"}
+                              {p.stock === 0 ? "Недоступно" : "В корзину"}
                             </Btn>
                           )}
                         </div>
