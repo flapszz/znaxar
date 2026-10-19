@@ -1,3 +1,4 @@
+import ExcelJS from "exceljs";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { pool } from "../db.js";
@@ -61,6 +62,46 @@ function formatOrder(r) {
     consentVersion: r.consent_version,
   };
 }
+
+// Выгрузка всех заявок в Excel: для отчётов и сверки с учётной системой.
+// Должна стоять выше маршрута /:id, чтобы «export» не принимался за номер заявки.
+ordersRouter.get("/export", requireAdmin, async (req, res) => {
+  const { rows } = await pool.query(`SELECT * FROM orders ORDER BY created_at DESC`);
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Заявки");
+  sheet.columns = [
+    { header: "№", key: "id", width: 8 },
+    { header: "Дата", key: "date", width: 18 },
+    { header: "Статус", key: "status", width: 14 },
+    { header: "Имя", key: "name", width: 22 },
+    { header: "Телефон", key: "phone", width: 18 },
+    { header: "Город", key: "city", width: 18 },
+    { header: "Состав заявки", key: "items", width: 60 },
+    { header: "Сумма, ₽", key: "total", width: 12 },
+    { header: "Комментарий", key: "comment", width: 30 },
+    { header: "Согласие на обработку данных", key: "consent", width: 28 },
+  ];
+  sheet.getRow(1).font = { bold: true };
+  for (const r of rows) {
+    const items = Array.isArray(r.items) ? r.items : [];
+    sheet.addRow({
+      id: r.id,
+      date: new Date(r.created_at).toLocaleString("ru-RU"),
+      status: r.status,
+      name: r.name,
+      phone: r.phone,
+      city: r.city,
+      items: items.map((i) => `${i.title || i.sku} × ${i.qty}`).join("; "),
+      total: items.reduce((sum, i) => sum + (i.price || 0) * i.qty, 0),
+      comment: r.comment || "",
+      consent: r.consent_at ? new Date(r.consent_at).toLocaleString("ru-RU") : "нет",
+    });
+  }
+  res.set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  res.set("Content-Disposition", "attachment; filename*=UTF-8''" + encodeURIComponent("заявки.xlsx"));
+  await workbook.xlsx.write(res);
+  res.end();
+});
 
 ordersRouter.get("/", requireAdmin, async (req, res) => {
   const { rows } = await pool.query(`SELECT * FROM orders ORDER BY created_at DESC`);

@@ -12,6 +12,7 @@ import { C, HEAD, INK } from "./constants/theme";
 import { LegalPage } from "./legal/LegalPage";
 import { Shop } from "./shop/Shop";
 import { loadCatalogMeta } from "./utils/catalogMeta";
+import { initMetrika, reachGoal } from "./utils/metrika";
 
 // Админка нужна одному владельцу — покупателям её код не отдаём (грузится отдельным файлом).
 const Admin = lazy(() => import("./admin/Admin").then((m) => ({ default: m.Admin })));
@@ -19,6 +20,7 @@ const AdminGate = lazy(() => import("./admin/AdminGate").then((m) => ({ default:
 
 // Запросы за категориями и брендами уходят сразу, вместе с запросом каталога.
 loadCatalogMeta();
+initMetrika();
 
 const STATIC_ROUTES = {
   "/privacy": {
@@ -148,6 +150,7 @@ export default function App() {
       );
     }
     const order = await res.json();
+    reachGoal("order_sent");
     setCart([]);
     return order.id;
   };

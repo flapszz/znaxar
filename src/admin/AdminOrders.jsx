@@ -80,13 +80,24 @@ export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
 
   return (
     <div>
-      <p className="mb-4" style={{ fontSize: 15, fontWeight: 600, color: C.ink }}>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <p style={{ fontSize: 15, fontWeight: 600, color: C.ink }}>
         {orders.length === 0
           ? "Заявок пока нет."
           : newCount > 0
             ? `Новых заявок: ${newCount}. Позвоните им в первую очередь — телефон в карточке нажимается.`
             : "Новых заявок нет — все обработаны."}
       </p>
+      {orders.length > 0 && (
+        <a
+          href="/api/orders/export"
+          className="inline-flex items-center px-4 py-2.5"
+          style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, color: C.ink, fontSize: 14 }}
+        >
+          Скачать заявки в Excel
+        </a>
+      )}
+      </div>
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="flex items-center gap-2 overflow-x-auto flex-nowrap pb-1">
           {["все", ...STATUSES].map((s) => (
