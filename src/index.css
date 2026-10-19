@@ -41,7 +41,7 @@ input[type="checkbox"] {
   accent-color: #685bc5;
 }
 ::placeholder {
-  color: rgba(0, 39, 82, 0.55);
+  color: rgba(0, 39, 82, 0.68);
   opacity: 1;
 }
 
@@ -56,5 +56,14 @@ input[type="checkbox"] {
 @media (min-width: 640px) {
   .product-grid {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+.photo-lg {
+  height: 190px;
+}
+@media (max-width: 639px) {
+  .photo-lg {
+    height: 130px;
   }
 }

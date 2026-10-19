@@ -29,8 +29,8 @@ export function ProductPhoto({ sku, imageUrl, alt = "", badge, size = "lg" }) {
 
   return (
     <div
-      className="relative overflow-hidden"
-      style={{ height: big ? 190 : 80, borderRadius: RADIUS.well, background: tint }}
+      className={`relative overflow-hidden ${big ? "photo-lg" : ""}`}
+      style={{ height: big ? undefined : 80, borderRadius: RADIUS.well, background: tint }}
     >
       {imageUrl ? (
         <img

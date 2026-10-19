@@ -4,7 +4,7 @@ import { C, INK } from "../constants/theme";
 export function TrustBadges({ hasSgr = true, compact = false }) {
   const items = [
     { Icon: Wallet, label: "Оплата при получении" },
-    ...(hasSgr ? [{ Icon: ShieldCheck, label: "СГР проверен" }] : []),
+    ...(hasSgr ? [{ Icon: ShieldCheck, label: "СГР указан" }] : []),
     { Icon: Truck, label: "Доставка СДЭК" },
   ];
 
@@ -13,7 +13,7 @@ export function TrustBadges({ hasSgr = true, compact = false }) {
       {items.map(({ Icon, label }) => (
         <div key={label} className="flex items-center gap-1.5" title={label}>
           <Icon size={compact ? 14 : 16} color={C.violet} strokeWidth={1.75} />
-          {!compact && <span style={{ fontSize: 10.5, color: INK[60] }}>{label}</span>}
+          {!compact && <span style={{ fontSize: 12, color: INK[60] }}>{label}</span>}
         </div>
       ))}
     </div>

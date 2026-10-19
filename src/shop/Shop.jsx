@@ -121,6 +121,10 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
     .sort((a, b) => (sort === "дешевле" ? a.price - b.price : sort === "дороже" ? b.price - a.price : 0));
 
   const minPrice = Math.min(...products.filter((p) => p.published && p.stock > 0).map((p) => p.price));
+  // Подборка без единого товара на сайте покупателю не нужна — не показываем.
+  const visibleCollections = collections.filter((col) =>
+    (col.skus || []).some((sku) => bySku[sku]?.published && bySku[sku]?.hasStock)
+  );
   const count = cart.reduce((s, i) => s + i.qty, 0);
   const total = cart.reduce((s, i) => s + i.qty * (bySku[i.sku]?.price || 0), 0);
 
@@ -150,10 +154,10 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
     <div className={FRAME_CLASS}>
       <div
         className="flex flex-col"
-        style={{ borderRadius: RADIUS.frame, overflow: "hidden", boxShadow: SHADOW_FRAME, background: C.surface }}
+        style={{ borderRadius: RADIUS.frame, overflow: "clip", boxShadow: SHADOW_FRAME, background: C.surface }}
       >
         {screen === "catalog" && (
-          <div className="sm:hidden p-4" style={{ background: C.violet, color: C.surface }}>
+          <div className="sm:hidden p-4" style={{ background: C.ink, color: C.surface }}>
             <div className="flex items-center gap-2 mb-3">
               <Activity size={20} color={C.acid} strokeWidth={2.25} />
               <span style={{ ...HEAD, fontSize: 18 }}>Знахарь</span>
@@ -161,7 +165,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
             </div>
             <label
               className="flex items-center gap-2 px-3.5 py-2 mb-3"
-              style={{ borderRadius: RADIUS.pill, background: C.violetDk }}
+              style={{ borderRadius: RADIUS.pill, background: "rgba(255,255,255,.12)" }}
             >
               <Search size={15} color="rgba(255,255,255,.7)" />
               <input
@@ -178,7 +182,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 className="px-4 py-2.5 shrink-0 flex items-center gap-1.5"
                 style={{
                   borderRadius: RADIUS.pill,
-                  background: showFavorites ? C.acid : C.violetDk,
+                  background: showFavorites ? C.acid : "rgba(255,255,255,.12)",
                   color: showFavorites ? C.ink : C.surface,
                   fontSize: 12,
                   fontWeight: showFavorites ? 600 : 400,
@@ -193,7 +197,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   className="px-4 py-2.5 shrink-0"
                   style={{
                     borderRadius: RADIUS.pill,
-                    background: cat === c ? C.acid : C.violetDk,
+                    background: cat === c ? C.acid : "rgba(255,255,255,.12)",
                     color: cat === c ? C.ink : C.surface,
                     fontSize: 12,
                     fontWeight: cat === c ? 600 : 400,
@@ -202,7 +206,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                   {c}
                 </button>
               ))}
-              {collections.map((col) => {
+              {visibleCollections.map((col) => {
                 const key = `col:${col.id}`;
                 const on = cat === key;
                 return (
@@ -230,9 +234,10 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         <div className="flex flex-wrap flex-1">
         {screen === "catalog" && (
           <aside
-            className="hidden sm:flex flex-col gap-6 p-5"
+            className="hidden sm:block"
             style={{ flex: "1 1 240px", maxWidth: 260, background: C.ink, color: C.surface }}
           >
+            <div className="sticky top-6 flex flex-col gap-6 p-5" style={{ minHeight: "calc(100vh - 3rem)", maxHeight: "100vh", overflowY: "auto" }}>
             <div className="flex items-center gap-2">
               <Activity size={20} color={C.acid} strokeWidth={2.25} />
               <span style={{ ...HEAD, fontSize: 19 }}>Знахарь</span>
@@ -317,7 +322,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               <div>
                 <div style={{ ...OVERLINE, color: "rgba(251,248,243,.62)" }}>Подборки</div>
                 <div className="mt-2 flex flex-col gap-1.5">
-                  {collections.map((col) => {
+                  {visibleCollections.map((col) => {
                     const key = `col:${col.id}`;
                     const on = cat === key;
                     return (
@@ -354,10 +359,11 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                 </a>
               </div>
             </div>
+            </div>
           </aside>
         )}
 
-        <div className={`p-5 sm:p-8 ${count > 0 ? "pb-28" : ""}`} style={{ flex: "9999 1 560px", minWidth: 0 }}>
+        <div className={`p-5 sm:p-8 ${count > 0 && screen === "catalog" ? "pb-28" : ""}`} style={{ flex: "9999 1 560px", minWidth: 0 }}>
           {screen !== "catalog" && (
             <div className="flex items-center justify-between gap-3 mb-6 pb-4" style={{ borderBottom: `1px solid ${INK[12]}` }}>
               <button onClick={backToCatalog} className="flex items-center gap-2" aria-label="Знахарь — на главную">
@@ -367,7 +373,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               {count > 0 && screen !== "checkout" && (
                 <button
                   onClick={goCheckout}
-                  className="hidden sm:flex px-4 py-2 items-center gap-2"
+                  className="px-4 py-2 flex items-center gap-2"
                   style={{ borderRadius: RADIUS.pill, background: C.ink, color: C.surface, fontSize: 13, fontWeight: 600 }}
                 >
                   Корзина · {count} · {money(total)}
@@ -491,22 +497,6 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     </Btn>
                   </form>
 
-                  <div className="hidden sm:flex flex-wrap gap-2 mt-3">
-                    {categories.slice(0, 4).map((c) => (
-                      <button
-                        key={c.id ?? c.name}
-                        onClick={() => {
-                          setCat(c.name);
-                          scrollToGrid();
-                        }}
-                        className="px-3.5 py-1.5"
-                        style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}`, fontSize: 13, color: C.ink }}
-                      >
-                        {c.name}
-                      </button>
-                    ))}
-                  </div>
-
                   <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1.5" style={{ fontSize: 13, color: INK[72] }}>
                     <span className="flex items-center gap-1.5">
                       <Clock size={15} /> Перезвоним за час
@@ -518,6 +508,9 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                       <Truck size={15} /> Доставка СДЭК
                     </span>
                   </div>
+                  <p className="mt-3" style={{ fontSize: 13, fontWeight: 600, color: C.ink }}>
+                    БАД. Не является лекарственным средством.
+                  </p>
                 </div>
                 <img
                   src="/img/hero-herbs.webp"
@@ -579,8 +572,21 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
               </div>
 
               {visible.length === 0 ? (
-                <div className="py-16 text-center" style={{ color: INK[60] }}>
-                  Ничего не нашлось. Попробуйте другую категорию.
+                <div className="py-16 text-center" style={{ color: INK[72] }}>
+                  <p>{query.trim() ? `По запросу «${query.trim()}» ничего не нашлось.` : "В этой категории пока ничего нет."}</p>
+                  <button
+                    onClick={() => {
+                      setQuery("");
+                      setCat("Все");
+                      setBrand("Все");
+                      setInStockOnly(false);
+                      setShowFavorites(false);
+                    }}
+                    className="mt-4 underline"
+                    style={{ fontSize: 14, color: C.violet }}
+                  >
+                    Сбросить поиск и фильтры
+                  </button>
                 </div>
               ) : (
                 <div className="mt-5 grid gap-3 sm:gap-5 product-grid">
@@ -635,7 +641,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                                 <button
                                   onClick={() => setQty(p.sku, inCart.qty - 1)}
                                   className="flex items-center justify-center"
-                                  style={{ width: 32, height: 32, borderRadius: 999, background: "rgba(255,255,255,.15)", color: C.surface }}
+                                  style={{ width: 36, height: 36, borderRadius: 999, background: "rgba(255,255,255,.15)", color: C.surface }}
                                   aria-label="Уменьшить количество"
                                 >
                                   −
@@ -644,7 +650,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                                   onClick={() => setQty(p.sku, Math.min(inCart.qty + 1, p.stock))}
                                   disabled={inCart.qty >= p.stock}
                                   className="flex items-center justify-center"
-                                  style={{ width: 32, height: 32, borderRadius: 999, background: C.acid, color: C.ink, opacity: inCart.qty >= p.stock ? 0.4 : 1 }}
+                                  style={{ width: 36, height: 36, borderRadius: 999, background: C.acid, color: C.ink, opacity: inCart.qty >= p.stock ? 0.4 : 1 }}
                                   aria-label="Увеличить количество"
                                 >
                                   +
@@ -728,7 +734,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         </div>
       </div>
 
-      {(screen === "catalog" || screen === "product") && count > 0 && (
+      {screen === "catalog" && count > 0 && (
         <div
           className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all`}
           style={{
