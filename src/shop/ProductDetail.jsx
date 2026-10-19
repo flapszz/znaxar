@@ -2,7 +2,6 @@ import { Heart, Minus, Plus } from "lucide-react";
 import { Badge } from "../components/Badge";
 import { Btn } from "../components/Btn";
 import { ProductPhoto } from "../components/ProductPhoto";
-import { Plaque } from "../components/Plaque";
 import { TrustBadges } from "../components/TrustBadges";
 import { C, DIVIDER, HEAD, INK, OVERLINE, RADIUS, tintForSku } from "../constants/theme";
 import { STOCK_LABEL, money, stockState } from "../utils/format";

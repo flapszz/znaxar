@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Badge } from "../components/Badge";
 import { Btn } from "../components/Btn";
 import { Field } from "../components/Field";
@@ -12,15 +12,18 @@ export function AdminPublications({ type, singular }) {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const refresh = () =>
-    adminFetch(`/api/publications/${type}`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then(setItems)
-      .catch(() => setItems([]));
+  const refresh = useCallback(
+    () =>
+      adminFetch(`/api/publications/${type}`)
+        .then((r) => (r.ok ? r.json() : []))
+        .then(setItems)
+        .catch(() => setItems([])),
+    [type]
+  );
 
   useEffect(() => {
     refresh();
-  }, [type]);
+  }, [refresh]);
 
   const startEdit = (item) => {
     setEditing(item ? item.id : "new");

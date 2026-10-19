@@ -173,6 +173,11 @@ export default function App() {
 
   return (
     <div className={mode === "admin" ? "admin-root" : ""} style={{ background: C.paper, color: C.ink, minHeight: "100vh" }}>
+      {mode === "shop" && (
+        <a href="#catalog" className="skip-link">
+          Перейти к товарам
+        </a>
+      )}
       <CookieBanner onVisibleChange={setCookieVisible} />
 
       {mode === "admin" && (

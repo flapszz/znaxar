@@ -40,7 +40,7 @@ export function AdminCategories() {
     }
   };
 
-  const rename = async (id, name, fallback) => {
+  const rename = async (id, name) => {
     const res = await adminFetch(`/api/categories/${id}`, {
       method: "PUT",
       credentials: "same-origin",

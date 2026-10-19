@@ -10,6 +10,8 @@ export const C = {
   acid: "#BFE800",
   peach: "#FF8D6D",
   danger: "#B23A22",
+  ok: "#2E9E5B", // «в наличии», выполнено
+  warn: "#E0A100", // «заканчивается»
   tints: ["#E7E3F7", "#FFF3D6", "#E2ECE9", "#F1EBDA", "#E4EDDD", "#E3F0E4"],
 };
 

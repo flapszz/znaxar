@@ -68,7 +68,7 @@ export function AdminStart({ products, orders, goTo }) {
       <ol className="mt-3 grid gap-2.5">
         {steps.map((s) => (
           <li key={s.title} className="flex items-start gap-3">
-            <span aria-hidden="true" style={{ width: 20, fontWeight: 700, color: s.done ? "#2E9E5B" : INK[45] }}>
+            <span aria-hidden="true" style={{ width: 20, fontWeight: 700, color: s.done ? C.ok : INK[45] }}>
               {s.done ? "✓" : "○"}
             </span>
             <div className="flex-1 min-w-0">

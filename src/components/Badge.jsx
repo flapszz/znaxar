@@ -1,4 +1,4 @@
-import { C, RADIUS } from "../constants/theme";
+import { C } from "../constants/theme";
 
 const VARIANTS = {
   acid: { background: C.acid, color: C.ink },

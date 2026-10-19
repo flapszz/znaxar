@@ -304,3 +304,24 @@ h2,
 h3 {
   overflow-wrap: anywhere;
 }
+
+/* Видимый фокус на тёмных поверхностях (боковая панель, шапка на телефоне, панель корзины, баннер) —
+   синий контур на чёрном почти не виден, поэтому там он светлый. */
+.on-dark :focus-visible,
+.on-dark:focus-visible {
+  outline-color: var(--acid, #fff);
+}
+/* Ссылка «Перейти к товарам» для клавиатуры: видна только при фокусе. */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--ink, #000);
+  color: #fff;
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 8px;
+}

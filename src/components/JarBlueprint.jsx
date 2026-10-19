@@ -26,7 +26,7 @@ export function JarBlueprint({ className = "", style, title = "" }) {
         "M292 2v12M286 8h12",
         "M8 366v12M2 372h12",
         "M292 366v12M286 372h12",
-      ].map((d, i) => line(0, d, { strokeWidth: 1 }))}
+      ].map((d) => line(0, d, { strokeWidth: 1 }))}
 
       {/* крышка с насечкой и горловина */}
       {line(1, "M72 66h104v34H72z")}

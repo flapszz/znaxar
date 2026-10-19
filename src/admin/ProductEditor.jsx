@@ -127,7 +127,7 @@ export function ProductEditor({ p, mode = "edit", existingSkus = [], onCancel, o
               ["Фото товара", Boolean(imageUrl), false],
             ].map(([label, ok, required]) => (
               <li key={label} className="flex items-center gap-2" style={{ color: ok ? C.ink : INK[72] }}>
-                <span aria-hidden="true" style={{ width: 16, color: ok ? "#2E9E5B" : INK[45], fontWeight: 700 }}>
+                <span aria-hidden="true" style={{ width: 16, color: ok ? C.ok : INK[45], fontWeight: 700 }}>
                   {ok ? "✓" : "○"}
                 </span>
                 {label}

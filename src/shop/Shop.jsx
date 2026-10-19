@@ -183,7 +183,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         style={{ borderRadius: RADIUS.frame, overflow: "clip", boxShadow: SHADOW_FRAME, background: C.surface }}
       >
         {screen === "catalog" && (
-          <div className="lg:hidden p-4" style={{ background: C.ink, color: C.surface }}>
+          <div className="lg:hidden p-4 on-dark" style={{ background: C.ink, color: C.surface }}>
             <div className="flex items-center gap-2 mb-3">
               <Activity size={20} color={C.acid} strokeWidth={2.25} />
               <span style={{ ...HEAD, fontSize: 18 }}>Знахарь</span>
@@ -260,7 +260,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         <div className="flex flex-wrap flex-1">
         {screen === "catalog" && (
           <aside
-            className="hidden lg:block"
+            className="hidden lg:block on-dark"
             style={{ flex: "1 1 240px", maxWidth: 260, background: C.ink, color: C.surface }}
           >
             <div className="sticky top-6 flex flex-col gap-6 p-5" style={{ minHeight: "calc(100vh - 3rem)", maxHeight: "100vh", overflowY: "auto" }}>
@@ -375,7 +375,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
             <div className="mt-auto pt-4" style={{ borderTop: "1px solid rgba(251,248,243,.15)" }}>
               <ContactLine color={C.surface} className="mb-3" />
-              <Plaque compact dark />
+              <Plaque dark />
               <div className="mt-2 flex flex-col gap-1">
                 <a href="/privacy" target="_blank" rel="noopener" className="underline" style={{ fontSize: 12, color: "rgba(251,248,243,.7)" }}>
                   Политика конфиденциальности
@@ -389,7 +389,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
           </aside>
         )}
 
-        <div key={screen + (openSku || "")} className={`screen-in p-5 sm:p-8 ${count > 0 && screen === "catalog" ? "pb-28" : ""}`} style={{ flex: "9999 1 560px", minWidth: 0 }}>
+        <div id="catalog" role="main" key={screen + (openSku || "")} className={`screen-in p-5 sm:p-8 ${count > 0 && screen === "catalog" ? "pb-28" : ""}`} style={{ flex: "9999 1 560px", minWidth: 0 }}>
           {screen !== "catalog" && (
             <div className="flex items-center justify-between gap-3 mb-6 pb-4" style={{ borderBottom: `1px solid ${INK[12]}` }}>
               <button onClick={backToCatalog} className="flex items-center gap-2" aria-label="Знахарь — на главную">
@@ -691,7 +691,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                                 width: 8,
                                 height: 8,
                                 borderRadius: 999,
-                                background: state === "out" ? C.danger : state === "low" ? "#E0A100" : "#2E9E5B",
+                                background: state === "out" ? C.danger : state === "low" ? C.warn : C.ok,
                               }}
                             />
                             {STOCK_LABEL[state]}
@@ -805,7 +805,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
 
       {screen === "catalog" && count > 0 && (
         <div
-          className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all anim-slide-up`}
+          className={`fixed left-4 right-4 ${FRAME_WIDTH_CLASS} px-5 py-3.5 flex items-center justify-between transition-all anim-slide-up on-dark`}
           style={{
             bottom: `calc(${cookieBannerVisible ? 76 : 16}px + env(safe-area-inset-bottom, 0px))`,
             background: C.ink,

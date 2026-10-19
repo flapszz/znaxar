@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react";
-import { C, INK, RADIUS, SHADOW_FRAME } from "../constants/theme";
+import { C, SHADOW_FRAME } from "../constants/theme";
 import { Btn } from "./Btn";
 
 const STORAGE_KEY = "cookie_notice_v1";
 
 export function CookieBanner({ onVisibleChange }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    // localStorage может быть недоступен (приватный режим, отключённое хранилище) — тогда просто показываем баннер каждый раз.
+  // localStorage может быть недоступен (приватный режим, отключённое хранилище) — тогда просто показываем баннер каждый раз.
+  const [visible, setVisible] = useState(() => {
     try {
-      setVisible(localStorage.getItem(STORAGE_KEY) !== "accepted");
+      return localStorage.getItem(STORAGE_KEY) !== "accepted";
     } catch {
-      setVisible(true);
+      return true;
     }
-  }, []);
+  });
 
   useEffect(() => {
     onVisibleChange?.(visible);
@@ -33,7 +31,7 @@ export function CookieBanner({ onVisibleChange }) {
 
   return (
     <div
-      className="anim-slide-up fixed bottom-0 inset-x-0 z-50 flex flex-wrap items-center justify-center gap-3 px-5 py-3 text-center"
+      className="anim-slide-up on-dark fixed bottom-0 inset-x-0 z-50 flex flex-wrap items-center justify-center gap-3 px-5 py-3 text-center"
       style={{ background: C.ink, boxShadow: SHADOW_FRAME, paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
     >
       <span style={{ fontSize: 12.5, color: "rgba(251,248,243,.85)", maxWidth: 640 }}>

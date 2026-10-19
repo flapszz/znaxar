@@ -40,7 +40,7 @@ export function AdminBrands() {
     }
   };
 
-  const rename = async (id, name, fallback) => {
+  const rename = async (id, name) => {
     const res = await adminFetch(`/api/brands/${id}`, {
       method: "PUT",
       credentials: "same-origin",
