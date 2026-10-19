@@ -617,7 +617,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     return (
                       <article
                         key={p.sku}
-                        className="card-elevated anim-rise p-4 flex flex-col"
+                        className="card-elevated anim-card p-4 flex flex-col"
                         style={{ "--d": `${Math.min(idx, 7) * 40}ms`, borderRadius: RADIUS.card, background: C.card, border: `1.5px solid ${INK[12]}` }}
                       >
                         <div className="relative">

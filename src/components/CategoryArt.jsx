@@ -72,7 +72,7 @@ export function CategoryArt({ category, className = "", style }) {
   return (
     <svg
       viewBox="0 0 120 120"
-      className={className}
+      className={`cat-art ${className}`}
       style={style}
       fill="none"
       stroke="currentColor"

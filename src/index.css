@@ -244,6 +244,29 @@ input[type="checkbox"] {
     animation: idx-appear 180ms steps(3, end) backwards;
     animation-delay: var(--d, 0ms);
   }
+  @keyframes idx-scan-b {
+    from { clip-path: inset(0 0 100% 0); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+  .anim-card {
+    animation: rise 260ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: var(--d, 0ms);
+  }
+  /* карточка выезжает «развёрткой» сверху вниз, рисунок на ней прорисовывается следом */
+  [data-theme="index"] .anim-card {
+    animation: idx-scan 380ms steps(10, end) backwards;
+    animation-delay: var(--d, 0ms);
+  }
+  [data-theme="index"] .cat-art {
+    animation: idx-scan 520ms steps(12, end) backwards;
+    animation-delay: calc(var(--d, 0ms) + 180ms);
+  }
+  /* при наведении рисунок прорисовывается заново (другое имя анимации — чтобы она перезапустилась) */
+  @media (hover: hover) {
+    [data-theme="index"] .card-elevated:hover .cat-art {
+      animation: idx-scan-b 450ms steps(12, end);
+    }
+  }
   [data-theme="index"] .anim-type {
     animation: idx-wipe-x 520ms steps(22, end) backwards;
     animation-delay: var(--d, 0ms);
@@ -272,4 +295,11 @@ input[type="checkbox"] {
     outline: 2px solid var(--ink);
     outline-offset: -1px;
   }
+}
+
+/* блочный курсор в полях ввода — как в терминале (если браузер умеет) */
+[data-theme="index"] input,
+[data-theme="index"] textarea {
+  caret-shape: block;
+  caret-color: var(--violet);
 }
