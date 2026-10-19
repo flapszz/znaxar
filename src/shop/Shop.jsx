@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Activity, Clock, Heart, Search, Truck, Wallet } from "lucide-react";
-import { Badge } from "../components/Badge";
 import { Btn } from "../components/Btn";
 import { ContactLine } from "../components/ContactLine";
 import { ProductPhoto } from "../components/ProductPhoto";
@@ -506,7 +505,10 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                     </Btn>
                   </form>
 
-                  <div className="mt-5 flex flex-wrap gap-x-6 gap-y-1.5" style={{ fontSize: 13, color: INK[72] }}>
+                  <p className="mt-5 sm:hidden" style={{ fontSize: 13, color: INK[72] }}>
+                    Перезвоним за час · Оплата при получении · Доставка СДЭК
+                  </p>
+                  <div className="mt-5 hidden sm:flex flex-wrap gap-x-6 gap-y-1.5" style={{ fontSize: 13, color: INK[72] }}>
                     <span className="flex items-center gap-1.5">
                       <Clock size={15} /> Перезвоним за час
                     </span>
@@ -633,11 +635,20 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
                         <p className="mt-1 flex-1" style={{ fontSize: 13, color: INK[60] }}>
                           {packSize(p)}
                         </p>
-                        <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
+                        <div className="mt-3">
                           <span style={{ ...HEAD, fontSize: 26, whiteSpace: "nowrap" }}>{money(p.price)}</span>
-                          <Badge variant={state === "out" ? "danger" : state === "low" ? "acid" : "neutral"}>
+                          <div className="mt-1 flex items-center gap-1.5" style={{ fontSize: 12.5, color: INK[72] }}>
+                            <span
+                              aria-hidden="true"
+                              style={{
+                                width: 8,
+                                height: 8,
+                                borderRadius: 999,
+                                background: state === "out" ? C.danger : state === "low" ? "#E0A100" : "#2E9E5B",
+                              }}
+                            />
                             {STOCK_LABEL[state]}
-                          </Badge>
+                          </div>
                         </div>
                         <div className="mt-3">
                           {inCart ? (

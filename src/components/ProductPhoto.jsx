@@ -22,7 +22,7 @@ function BadgeOverlay({ badge }) {
   );
 }
 
-export function ProductPhoto({ sku, imageUrl, alt = "", badge, size = "lg" }) {
+export function ProductPhoto({ sku, imageUrl, alt = "", badge, size = "lg", height }) {
   const big = size === "lg";
   const tint = tintForSku(sku);
   const showBadge = big && badge;
@@ -30,7 +30,7 @@ export function ProductPhoto({ sku, imageUrl, alt = "", badge, size = "lg" }) {
   return (
     <div
       className={`relative overflow-hidden ${big ? "photo-lg" : ""}`}
-      style={{ height: big ? undefined : 80, borderRadius: RADIUS.well, background: tint }}
+      style={{ height: height ?? (big ? undefined : 80), borderRadius: RADIUS.well, background: tint }}
     >
       {imageUrl ? (
         <img

@@ -19,11 +19,11 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
       <div className="flex gap-8 flex-wrap">
         <div style={{ flex: "1 1 320px", minWidth: 0 }}>
           <div
-            className="flex items-center justify-center p-8 mx-auto w-full max-w-xs"
+            className="flex items-center justify-center p-8 mx-auto w-full max-w-md sm:sticky sm:top-6"
             style={{ borderRadius: RADIUS.card, background: tintForSku(p.sku) }}
           >
             <div className="w-full">
-              <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} badge={p.badge} />
+              <ProductPhoto sku={p.sku} imageUrl={p.imageUrl} alt={p.title} badge={p.badge} height={300} />
             </div>
           </div>
 
@@ -115,22 +115,22 @@ export function ProductDetail({ p, related = [], onAdd, onOpen, onBack, isFavori
             </div>
           )}
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <dl className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-2">
             {p.usage && (
-              <div className="p-3" style={{ borderRadius: RADIUS.block, background: C.card, border: `1.5px solid ${INK[12]}` }}>
-                <div style={OVERLINE}>Приём</div>
-                <div className="mt-1" style={{ fontSize: 13 }}>
+              <div>
+                <dt style={OVERLINE}>Приём</dt>
+                <dd className="mt-1" style={{ fontSize: 14 }}>
                   {p.usage}
-                </div>
+                </dd>
               </div>
             )}
-            <div className="p-3" style={{ borderRadius: RADIUS.block, background: C.card, border: `1.5px solid ${INK[12]}` }}>
-              <div style={OVERLINE}>СГР</div>
-              <div className="mt-1" style={{ fontSize: 13 }}>
+            <div>
+              <dt style={OVERLINE}>СГР</dt>
+              <dd className="mt-1" style={{ fontSize: 14 }}>
                 {p.sgr || "—"}
-              </div>
+              </dd>
             </div>
-          </div>
+          </dl>
 
           <div className="mt-4">
             <TrustBadges hasSgr={Boolean(p.sgr)} />
