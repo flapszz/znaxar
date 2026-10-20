@@ -22,3 +22,20 @@ services:
         sync: false
       - key: ADMIN_SEED_PASSWORD
         sync: false
+      # СДЭК: интеграция выключена, пока ключи не заданы (значения вводит владелец в панели Render)
+      - key: CDEK_CLIENT_ID
+        sync: false
+      - key: CDEK_CLIENT_SECRET
+        sync: false
+      - key: CDEK_MODE
+        value: test
+      - key: CDEK_FROM_CITY_CODE
+        sync: false
+      - key: CDEK_SHIPMENT_POINT
+        sync: false
+      - key: CDEK_SENDER_NAME
+        sync: false
+      - key: CDEK_SENDER_PHONE
+        sync: false
+      - key: CDEK_WEBHOOK_SECRET
+        generateValue: true

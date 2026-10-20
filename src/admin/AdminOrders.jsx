@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "../components/Badge";
 import { Pagination } from "../components/Pagination";
 import { C, HEAD, INK, RADIUS, STATUS_VARIANT, inputStyle } from "../constants/theme";
@@ -19,6 +19,41 @@ const phoneHref = (phone) => `tel:+${phone.replace(/\D/g, "").replace(/^8/, "7")
 
 export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
   const [busyId, setBusyId] = useState(null); // защита от двойного нажатия по одной заявке
+  const [cdekOn, setCdekOn] = useState(false);
+  const [pickupDraft, setPickupDraft] = useState({});
+
+  // Кнопки СДЭК показываем, только когда интеграция подключена на сервере.
+  useEffect(() => {
+    adminFetch("/api/cdek/status")
+      .then((r) => (r.ok ? r.json() : { enabled: false }))
+      .then((d) => setCdekOn(Boolean(d.enabled)))
+      .catch(() => setCdekOn(false));
+  }, []);
+
+  const cdekAction = async (id, action) => {
+    setBusyId(id);
+    const res = await adminFetch(`/api/cdek/orders/${id}/${action}`, { method: "POST" }).catch(() => null);
+    const data = await res?.json().catch(() => ({}));
+    if (res?.ok) notify?.(action === "create" ? `Накладная СДЭК по заявке № ${id} создана.` : "Статус накладной обновлён.");
+    else if (res?.status !== 401) notify?.(data?.error || "Не удалось связаться со СДЭК. Попробуйте ещё раз.");
+    setBusyId(null);
+    refreshOrders();
+  };
+
+  const savePickup = async (id) => {
+    const code = (pickupDraft[id] || "").trim();
+    if (!code) return;
+    const res = await adminFetch(`/api/orders/${id}/pickup`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pickupCode: code }),
+    }).catch(() => null);
+    if (res?.ok) {
+      notify?.(`Пункт выдачи СДЭК для заявки № ${id} сохранён.`);
+      setPickupDraft((d) => ({ ...d, [id]: "" }));
+    } else if (res?.status !== 401) notify?.("Не удалось сохранить пункт выдачи.");
+    refreshOrders();
+  };
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("все");
   const [page, setPage] = useState(1);
@@ -230,8 +265,49 @@ export function AdminOrders({ orders, refreshOrders, bySku, notify }) {
                   </label>
                 </div>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                  {/* INTEGRATION: кнопка создания накладной в СДЭК */}
-                  <span style={{ fontSize: 12, color: INK[60] }}>Накладную СДЭК можно будет создать здесь позже</span>
+                  {/* СДЭК: накладная создаётся только по кнопке после подтверждения заявки */}
+                  {!cdekOn ? (
+                    <span style={{ fontSize: 12, color: INK[60] }}>Накладную СДЭК можно будет создать здесь позже</span>
+                  ) : o.cdekUuid ? (
+                    <span className="flex flex-wrap items-center gap-2" style={{ fontSize: 13 }}>
+                      Накладная СДЭК{o.cdekNumber ? ` № ${o.cdekNumber}` : " создана"}
+                      {o.cdekStatus ? ` · ${o.cdekStatus}` : ""}
+                      <button onClick={() => cdekAction(o.id, "refresh")} disabled={busyId === o.id} className="underline" style={{ color: C.violet }}>
+                        Обновить статус
+                      </button>
+                    </span>
+                  ) : o.pickupCode ? (
+                    <span className="flex flex-wrap items-center gap-2" style={{ fontSize: 13 }}>
+                      Пункт СДЭК: {o.pickupCode}
+                      <button
+                        onClick={() => cdekAction(o.id, "create")}
+                        disabled={busyId === o.id || !["подтверждена", "собрана"].includes(o.status)}
+                        title={["подтверждена", "собрана"].includes(o.status) ? "" : "Сначала подтвердите заявку"}
+                        className="px-3 py-1.5"
+                        style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${C.violet}`, color: C.violet, fontWeight: 600, opacity: ["подтверждена", "собрана"].includes(o.status) ? 1 : 0.5 }}
+                      >
+                        Создать накладную СДЭК
+                      </button>
+                    </span>
+                  ) : (
+                    <span className="flex flex-wrap items-center gap-2" style={{ fontSize: 13 }}>
+                      Пункт выдачи СДЭК не выбран
+                      <input
+                        value={pickupDraft[o.id] || ""}
+                        onChange={(e) => setPickupDraft((d) => ({ ...d, [o.id]: e.target.value }))}
+                        placeholder="Код пункта, например MSK123"
+                        aria-label="Код пункта выдачи СДЭК"
+                        className="px-3 py-1.5"
+                        style={{ ...inputStyle, fontSize: 13, width: 220 }}
+                      />
+                      <button onClick={() => savePickup(o.id)} className="px-3 py-1.5" style={{ borderRadius: RADIUS.pill, border: `1.5px solid ${INK[18]}` }}>
+                        Сохранить
+                      </button>
+                    </span>
+                  )}
+                  {o.cdekError && !o.cdekUuid && (
+                    <span style={{ fontSize: 12, color: C.danger }}>Последняя попытка не удалась: {o.cdekError}</span>
+                  )}
                   <button onClick={() => removeOrder(o.id)} style={{ fontSize: 13, color: C.danger }}>
                     Удалить заявку
                   </button>

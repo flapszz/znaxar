@@ -57,6 +57,11 @@ function formatOrder(r) {
     items: r.items,
     status: r.status,
     stockDeducted: r.stock_deducted,
+    pickupCode: r.pickup_code,
+    cdekUuid: r.cdek_uuid,
+    cdekNumber: r.cdek_number,
+    cdekStatus: r.cdek_status,
+    cdekError: r.cdek_error,
     consentGiven: r.consent_given,
     consentAt,
     consentVersion: r.consent_version,
@@ -109,7 +114,7 @@ ordersRouter.get("/", requireAdmin, async (req, res) => {
 });
 
 ordersRouter.post("/", burstLimiter, submitLimiter, async (req, res) => {
-  const { name, phone, city, comment, items, consentGiven, website } = req.body || {};
+  const { name, phone, city, comment, items, consentGiven, website, cityCode, pickupCode, pickupName } = req.body || {};
 
   // Honeypot: обычный посетитель это поле не видит и не заполняет — заполненное
   // значит, что заявку прислал бот. Отвечаем как обычно, просто ничего не сохраняем.
@@ -174,9 +179,10 @@ ordersRouter.post("/", burstLimiter, submitLimiter, async (req, res) => {
   const { rows } = await pool.query(
     `INSERT INTO orders (
        name, phone, city, comment, items, pickup, status,
-       consent_given, consent_at, consent_version, consent_text_hash, consent_ip, consent_user_agent
+       consent_given, consent_at, consent_version, consent_text_hash, consent_ip, consent_user_agent,
+       pickup_code, city_code
      )
-     VALUES ($1,$2,$3,$4,$5,'ПВЗ уточняется','новая', true, now(), $6,$7,$8,$9)
+     VALUES ($1,$2,$3,$4,$5,$10,'новая', true, now(), $6,$7,$8,$9, $11, $12)
      RETURNING *`,
     [
       cleanName,
@@ -188,6 +194,10 @@ ordersRouter.post("/", burstLimiter, submitLimiter, async (req, res) => {
       CONSENT.hash,
       req.ip,
       (req.get("user-agent") || "").slice(0, 300),
+      // Пункт выдачи выбирается на карте СДЭК (когда подключим) или уточняется по телефону.
+      String(pickupName || "").trim().slice(0, 200) || "ПВЗ уточняется",
+      String(pickupCode || "").trim().slice(0, 40) || null,
+      Number.isInteger(cityCode) ? cityCode : null,
     ]
   );
 
@@ -242,6 +252,16 @@ ordersRouter.patch("/:id/status", requireAdmin, async (req, res) => {
   } finally {
     client.release();
   }
+});
+
+// Владелец вписывает пункт выдачи СДЭК, который договорился выбрать с покупателем по телефону.
+ordersRouter.patch("/:id/pickup", requireAdmin, async (req, res) => {
+  const code = String(req.body?.pickupCode || "").trim().slice(0, 40);
+  const name = String(req.body?.pickupName || "").trim().slice(0, 200);
+  if (!code) return res.status(400).json({ error: "Укажите код пункта выдачи СДЭК." });
+  const { rows } = await pool.query("UPDATE orders SET pickup_code = $1, pickup = COALESCE(NULLIF($2, ''), pickup) WHERE id = $3 RETURNING *", [code, name, req.params.id]);
+  if (!rows[0]) return res.status(404).json({ error: "Заявка не найдена." });
+  res.json(formatOrder(rows[0]));
 });
 
 // Удаление по запросу субъекта ПДн (отзыв согласия) — доступно только владельцу.
