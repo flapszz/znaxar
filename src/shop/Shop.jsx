@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Activity, Clock, Heart, Search, Truck, Wallet } from "lucide-react";
+import { LogoMark } from "../components/LogoMark";
+import { Clock, Heart, Search, Truck, Wallet } from "lucide-react";
 import { Btn } from "../components/Btn";
 import { ContactLine } from "../components/ContactLine";
 import { ProductPhoto } from "../components/ProductPhoto";
@@ -185,7 +186,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
         {screen === "catalog" && (
           <div className="lg:hidden p-4 on-dark" style={{ background: C.ink, color: C.surface }}>
             <div className="flex items-center gap-2 mb-3">
-              <Activity size={20} color={C.acid} strokeWidth={2.25} />
+              <LogoMark size={24} color={C.acid} />
               <span style={{ ...HEAD, fontSize: 18 }}>Знахарь</span>
               <ContactLine className="ml-auto" />
             </div>
@@ -265,7 +266,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
           >
             <div className="sticky top-6 flex flex-col gap-6 p-5" style={{ minHeight: "calc(100vh - 3rem)", maxHeight: "100vh", overflowY: "auto" }}>
             <div className="flex items-center gap-2">
-              <Activity size={20} color={C.acid} strokeWidth={2.25} />
+              <LogoMark size={24} color={C.acid} />
               <span style={{ ...HEAD, fontSize: 19 }}>Знахарь</span>
             </div>
 
@@ -393,7 +394,7 @@ export function Shop({ products, bySku, cart, addToCart, setQty, submitOrder, co
           {screen !== "catalog" && (
             <div className="flex items-center justify-between gap-3 mb-6 pb-4" style={{ borderBottom: `1px solid ${INK[12]}` }}>
               <button onClick={backToCatalog} className="flex items-center gap-2" aria-label="Знахарь — на главную">
-                <Activity size={20} color={C.violet} strokeWidth={2.25} />
+                <LogoMark size={24} color={C.violet} />
                 <span style={{ ...HEAD, fontSize: 19, color: C.ink }}>Знахарь</span>
               </button>
               {count > 0 && screen !== "checkout" && (

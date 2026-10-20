@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
-import { Activity } from "lucide-react";
+import { LogoMark } from "./components/LogoMark";
 import { Btn } from "./components/Btn";
 import { CatalogSkeleton } from "./components/CatalogSkeleton";
 import { AboutContent } from "./components/AboutContent";
@@ -187,7 +187,7 @@ export default function App() {
         <header style={{ borderBottom: `2px solid ${C.ink}`, background: C.surface }}>
           <div className="max-w-5xl mx-auto flex items-center gap-4 px-5 py-4">
             <div className="flex items-center gap-2.5 shrink-0">
-              <Activity size={20} color={C.violet} strokeWidth={2.25} />
+              <LogoMark size={24} color={C.violet} />
               <span style={{ ...HEAD, fontSize: 20, color: C.ink }}>Знахарь</span>
             </div>
             <button
